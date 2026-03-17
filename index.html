@@ -1461,7 +1461,17 @@ function getAuthToken(){
   if(S.adminToken) return S.adminToken;
   return null;
 }
+let _staticData=null;
+async function _getStaticData(){
+  if(_staticData) return _staticData;
+  try{const r=await fetch('static-data.json');if(r.ok){_staticData=await r.json();return _staticData}}catch(e){}
+  return null;
+}
 async function api(method,path,body,extraHeaders){
+  if(method==='GET'){
+    const sd=await _getStaticData();
+    if(sd){const key=path.split('?')[0];if(sd[key]!==undefined) return sd[key]}
+  }
   const opts={method,headers:{}};
   if(body){opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(body)}
   const token=getAuthToken();
