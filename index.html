@@ -2749,7 +2749,7 @@ async function aiParseExclusion(txt){
       method:'POST',
       headers:{
         'Content-Type':'application/json',
-        'Authorization':'Bearer REMOVED'
+        'Authorization':'Bearer '+(window.OPENROUTER_KEY||'')
       },
       body:JSON.stringify({
         model:'google/gemini-2.5-flash',
