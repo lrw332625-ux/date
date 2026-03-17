@@ -595,17 +595,6 @@ a{color:var(--primary);text-decoration:none}
   letter-spacing:.01em;
   line-height:1;
 }
-.tl-end{
-  position:absolute;
-  right:6px;
-  bottom:-4px;
-  display:block;
-  font-size:.56rem;
-  font-weight:700;
-  color:#7f1d1d;
-  opacity:.9;
-  line-height:1;
-}
 .date-picker-grid{
   display:grid;
   grid-template-columns:repeat(7,minmax(0,1fr));
@@ -1472,17 +1461,7 @@ function getAuthToken(){
   if(S.adminToken) return S.adminToken;
   return null;
 }
-let _staticData=null;
-async function _getStaticData(){
-  if(_staticData) return _staticData;
-  try{const r=await fetch('static-data.json');if(r.ok){_staticData=await r.json();return _staticData}}catch(e){}
-  return null;
-}
 async function api(method,path,body,extraHeaders){
-  if(method==='GET'){
-    const sd=await _getStaticData();
-    if(sd){const key=path.split('?')[0];if(sd[key]!==undefined) return sd[key]}
-  }
   const opts={method,headers:{}};
   if(body){opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(body)}
   const token=getAuthToken();
@@ -1712,7 +1691,12 @@ function timeEnd(t,gran){
   return String(Math.floor(em/60)).padStart(2,'0')+':'+String(em%60).padStart(2,'0');
 }
 function timeLabelHtml(t, gran){
-  return `<span class="tl-start">${esc(t)}</span><span class="tl-end">${esc(timeEnd(t,gran))}</span>`;
+  return `<span class="tl-start">${esc(t)}</span>`;
+}
+function timeEndLabelHtml(times, gran){
+  if(!times||!times.length) return '';
+  const last=times[times.length-1];
+  return `<span class="tl-start">${esc(timeEnd(last,gran))}</span>`;
 }
 function fmtRecent(ts){
   return new Date(ts||Date.now()).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -2362,6 +2346,10 @@ function buildCreateEditPage(eventId){
         }
       });
     });
+    if(times.length){
+      gridHtml+=`<div class="tl" style="min-height:4px">${timeEndLabelHtml(times,S.granularity)}</div>`;
+      displayDates.forEach(()=>{gridHtml+=`<div style="min-height:0"></div>`;});
+    }
     gridHtml+=`</div></div>`;
   }
 
@@ -3190,6 +3178,10 @@ function renderAvailGrid(eid,isAdmin){
       }
     });
   });
+  if(tLabels.length){
+    g+=`<div class="tl" style="min-height:4px">${timeEndLabelHtml(tLabels,gridGranularity)}</div>`;
+    dates.forEach(()=>{g+=`<div style="min-height:0"></div>`;});
+  }
   g+=`</div>`;
 
   let adminBtn=isAdmin&&S.activeRole==='organizer'?`<button class="btn btn-o btn-sm" onclick="nav('/event/${eid}/edit')">编辑活动</button>`:'';
@@ -3349,6 +3341,10 @@ async function renderResults(eid){
       }
     });
   });
+  if(tLabels.length){
+    hH+=`<div class="tl" style="min-height:4px">${timeEndLabelHtml(tLabels,gridGranularity)}</div>`;
+    dates.forEach(()=>{hH+=`<div style="min-height:0"></div>`;});
+  }
   hH+=`</div>`;
 
   let pH='<ul class="plist">';
