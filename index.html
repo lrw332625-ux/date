@@ -1,0 +1,3392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>约聚会时间</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f4f7fb;
+  --bg-soft:#eef4ff;
+  --card:#ffffffcc;
+  --card-solid:#fff;
+  --text:#162033;
+  --muted:#66758f;
+  --line:#d9e3f3;
+  --primary:#2563eb;
+  --primary-strong:#1d4ed8;
+  --primary-soft:#dbeafe;
+  --accent:#0f766e;
+  --accent-soft:#ccfbf1;
+  --shadow:0 18px 50px rgba(37,99,235,.10);
+}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{
+  font-family:"Avenir Next","SF Pro Display","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  background:
+    radial-gradient(circle at top left,rgba(37,99,235,.12),transparent 28%),
+    radial-gradient(circle at top right,rgba(15,118,110,.10),transparent 22%),
+    linear-gradient(180deg,#f8fbff 0%,var(--bg) 42%,#edf3fb 100%);
+  color:var(--text);
+  line-height:1.6;
+  min-height:100dvh;
+  overflow-wrap:anywhere;
+}
+a{color:var(--primary);text-decoration:none}
+
+.container{
+  width:min(100%,860px);
+  margin:0 auto;
+  padding:20px max(16px,env(safe-area-inset-left)) calc(28px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-right));
+  position:relative;
+  z-index:1;
+}
+.header{
+  position:relative;
+  overflow:visible;
+  z-index:30;
+  isolation:isolate;
+  text-align:center;
+  padding:22px max(16px,env(safe-area-inset-left)) 18px max(16px,env(safe-area-inset-right));
+  background:
+    radial-gradient(circle at 20% 10%,rgba(255,255,255,.22),transparent 20%),
+    radial-gradient(circle at 80% 0%,rgba(255,255,255,.18),transparent 18%),
+    linear-gradient(135deg,#1847c7 0%,#2563eb 46%,#0f766e 100%);
+  color:#fff;
+  box-shadow:0 18px 40px rgba(21,57,140,.18);
+}
+.header-left,
+.header-right{
+  position:absolute;
+  top:16px;
+  z-index:2;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.header-left{left:max(16px,env(safe-area-inset-left))}
+.header-right{right:max(16px,env(safe-area-inset-right))}
+.header-menu-group{
+  position:relative;
+  display:flex;
+  align-items:center;
+  z-index:5;
+  padding-bottom:10px;
+  margin-bottom:-10px;
+}
+.header-home,
+.header-role,
+.header-account{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 12px;
+  min-width:108px;
+  border:none;
+  border-radius:999px;
+  background:rgba(255,255,255,.16);
+  border:1px solid rgba(255,255,255,.18);
+  color:#fff;
+  backdrop-filter:blur(10px);
+  cursor:pointer;
+  font-size:.82rem;
+  font-weight:700;
+  justify-content:center;
+}
+.header-home{
+  min-width:auto;
+  padding:8px 11px;
+}
+.header-role strong{color:#fff}
+.header-account-icon{
+  width:24px;
+  height:24px;
+  color:#fff;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+}
+.header-account-icon svg{
+  width:20px;
+  height:20px;
+  display:block;
+}
+.header-pop{
+  position:absolute;
+  top:calc(100% - 4px);
+  left:0;
+  min-width:210px;
+  padding:8px;
+  border-radius:18px;
+  border:1px solid rgba(203,213,225,.92);
+  background:rgba(255,255,255,.97);
+  box-shadow:0 22px 48px rgba(15,23,42,.16);
+  backdrop-filter:blur(18px);
+  display:none;
+  z-index:40;
+}
+.header-pop::before{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  top:-14px;
+  height:14px;
+}
+.header-pop.right{
+  left:auto;
+  right:0;
+}
+.header-pop.open{display:block}
+.header-pop-item{
+  width:100%;
+  border:none;
+  background:transparent;
+  border-radius:12px;
+  padding:10px 12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  color:var(--text);
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+}
+.header-pop-item:hover{
+  background:rgba(37,99,235,.08);
+  color:var(--primary);
+}
+.header-pop-item small{
+  color:var(--muted);
+  font-size:.74rem;
+}
+.header-pop-divider{
+  height:1px;
+  margin:6px 2px;
+  background:rgba(203,213,225,.82);
+}
+.header-pop-note{
+  padding:8px 12px 4px;
+  color:var(--muted);
+  font-size:.78rem;
+}
+.header::after{
+  content:"";
+  position:absolute;
+  inset:auto -12% -28px 48%;
+  height:84px;
+  background:rgba(255,255,255,.08);
+  filter:blur(2px);
+  transform:rotate(-5deg);
+  border-radius:999px;
+}
+.header h1{font-size:1.65rem;font-weight:800;letter-spacing:.08em;margin-top:10px;cursor:pointer}
+.header .sub{font-size:.86rem;opacity:.92;margin-top:4px}
+
+/* Card */
+.card{
+  background:var(--card);
+  backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,.65);
+  border-radius:20px;
+  padding:20px;
+  box-shadow:var(--shadow);
+  margin-bottom:16px;
+}
+.card h2{font-size:1.08rem;margin-bottom:10px;color:var(--text)}
+
+/* Form */
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:.82rem;font-weight:700;color:#42526b;margin-bottom:5px}
+.fg input,.fg textarea,.fg select{
+  width:100%;
+  padding:11px 12px;
+  border:1.5px solid var(--line);
+  border-radius:12px;
+  font-size:1rem;
+  background:rgba(255,255,255,.82);
+  transition:border-color .2s,box-shadow .2s,transform .2s;
+}
+.fg input:focus,.fg textarea:focus,.fg select:focus{
+  outline:none;
+  border-color:var(--primary);
+  background:#fff;
+  box-shadow:0 0 0 4px rgba(37,99,235,.10);
+}
+.fg textarea{resize:vertical;min-height:50px}
+.fr{display:flex;gap:10px}
+.fr .fg{flex:1}
+
+/* Buttons */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:11px 22px;
+  border:none;
+  border-radius:999px;
+  font-size:.95rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:transform .18s,box-shadow .18s,background .18s,color .18s,border-color .18s;
+  width:100%;
+  -webkit-tap-highlight-color:transparent;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn-p{background:linear-gradient(135deg,var(--primary),var(--primary-strong));color:#fff;box-shadow:0 12px 24px rgba(37,99,235,.22)}
+.btn-p:hover{box-shadow:0 16px 28px rgba(37,99,235,.28)}
+.btn-s{background:#e8eef8;color:#42526b}
+.btn-s:hover{background:#dbe5f4}
+.btn-g{background:linear-gradient(135deg,#14b8a6,var(--accent));color:#fff;box-shadow:0 12px 24px rgba(15,118,110,.20)}
+.btn-g:hover{box-shadow:0 16px 28px rgba(15,118,110,.26)}
+.btn-o{background:rgba(255,255,255,.9);color:var(--primary);border:1.5px solid rgba(37,99,235,.22)}
+.btn-o:hover{background:#eff6ff;border-color:rgba(37,99,235,.36)}
+.btn-sm{padding:8px 16px;font-size:.82rem;width:auto}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-row{display:flex;gap:10px;margin-top:14px}
+.btn-row .btn{flex:1}
+
+/* Role cards */
+.role-cards{display:flex;gap:16px;margin-top:16px}
+.role-card{
+  flex:1;
+  background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(241,245,255,.92));
+  border-radius:22px;
+  padding:26px 16px;
+  text-align:center;
+  box-shadow:var(--shadow);
+  cursor:pointer;
+  transition:all .2s;
+  border:1.5px solid rgba(255,255,255,.75);
+}
+.role-card:hover{border-color:rgba(37,99,235,.25);transform:translateY(-2px);box-shadow:0 18px 32px rgba(37,99,235,.12)}
+.role-card.active{border-color:rgba(37,99,235,.35);background:linear-gradient(180deg,#f7fbff,#e8f1ff);box-shadow:0 18px 36px rgba(37,99,235,.16)}
+.role-card .ri{font-size:2.4rem;margin-bottom:6px}
+.role-card h3{font-size:1rem;margin-bottom:4px}
+.role-card p{font-size:.79rem;color:var(--muted)}
+
+/* Global role switch */
+.rolebar{
+  position:sticky;
+  top:0;
+  z-index:20;
+  background:rgba(248,251,255,.72);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid rgba(217,227,243,.9);
+  padding:12px max(16px,env(safe-area-inset-left)) 12px max(16px,env(safe-area-inset-right));
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+}
+.rolebar-role{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:9px 14px;
+  border:none;
+  border-radius:999px;
+  background:rgba(255,255,255,.88);
+  border:1px solid rgba(37,99,235,.12);
+  color:#334155;
+  font-size:.84rem;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 10px 22px rgba(15,23,42,.06);
+}
+.rolebar-role strong{color:var(--primary-strong)}
+.rolebar-role::after{
+  content:"切换";
+  font-size:.72rem;
+  color:var(--muted);
+  font-weight:700;
+}
+.accountbar{
+  background:rgba(255,255,255,.72);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(217,227,243,.9);
+  padding:10px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.account-copy{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.account-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.account-chip{
+  display:inline-flex;
+  align-items:center;
+  padding:5px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,.9);
+  border:1px solid rgba(37,99,235,.10);
+  font-size:.74rem;
+  color:var(--muted);
+  font-weight:700;
+}
+.role-pill.disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.seed-list{display:flex;flex-direction:column;gap:8px}
+.seed-item{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:14px;
+  background:rgba(255,255,255,.8);
+  border:1px solid rgba(37,99,235,.08);
+}
+.role-hero{
+  background:
+    radial-gradient(circle at top right,rgba(37,99,235,.14),transparent 26%),
+    linear-gradient(135deg,#fafdff 0%,#eef5ff 58%,#edfdfa 100%);
+  border:1px solid rgba(37,99,235,.14);
+}
+.role-hero h2{margin-bottom:4px}
+.stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px}
+.stat{background:rgba(255,255,255,.76);border:1px solid rgba(37,99,235,.10);border-radius:16px;padding:14px 12px;text-align:center}
+.stat strong{display:block;font-size:1.24rem;color:var(--text)}
+.stat span{font-size:.76rem;color:var(--muted)}
+.dash-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.dash-head p{margin:0}
+.icon-nav-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:6px 10px;
+  border:none;
+  border-radius:999px;
+  background:rgba(255,255,255,.86);
+  border:1px solid rgba(37,99,235,.14);
+  color:var(--primary);
+  font-size:.82rem;
+  font-weight:700;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(15,23,42,.05);
+}
+.icon-nav-btn svg{width:14px;height:14px;display:block}
+.activity-card{
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(245,249,255,.92));
+  border:1px solid rgba(37,99,235,.08);
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:12px;
+  transition:border-color .15s,box-shadow .15s,transform .15s;
+  cursor:pointer;
+}
+.activity-card::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:4px;
+  background:linear-gradient(180deg,var(--primary),var(--accent));
+  opacity:.9;
+}
+.activity-card:hover{border-color:rgba(37,99,235,.22);box-shadow:0 20px 34px rgba(15,23,42,.08);transform:translateY(-1px)}
+.activity-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.activity-title{font-size:.98rem;font-weight:700;color:#0F172A}
+.activity-sub{font-size:.78rem;color:var(--muted)}
+.badge-row{display:flex;gap:6px;flex-wrap:wrap}
+.mini-badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:999px;font-size:.72rem;font-weight:700}
+.mini-badge.org{background:var(--primary-soft);color:var(--primary-strong)}
+.mini-badge.part{background:var(--accent-soft);color:var(--accent)}
+.mini-badge.code{background:#eef2f8;color:#475569;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.activity-actions{display:flex;gap:8px;flex-wrap:wrap}
+.activity-actions .btn{width:auto}
+.empty-state{padding:24px;border:1px dashed rgba(37,99,235,.22);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(237,244,255,.9));text-align:center;color:var(--muted)}
+.stack-list{display:flex;flex-direction:column;gap:12px}
+.list-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 16px;
+  border:1px solid rgba(37,99,235,.18);
+  border-radius:16px;
+  background:rgba(255,255,255,.92);
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(15,23,42,.05);
+  transition:border-color .15s,box-shadow .15s,transform .15s,background .15s;
+}
+.list-row:hover{border-color:rgba(37,99,235,.32);box-shadow:0 14px 28px rgba(15,23,42,.08);transform:translateY(-1px)}
+.list-row.active{border-color:rgba(37,99,235,.42);background:linear-gradient(135deg,#f8fbff,#eef5ff);box-shadow:0 16px 30px rgba(37,99,235,.12)}
+.list-row.dim{opacity:.75;background:rgba(241,245,249,.92);border-style:dashed;border-color:rgba(148,163,184,.55)}
+.row-main{min-width:0;flex:1}
+.row-title{font-size:.95rem;font-weight:800;color:var(--text);line-height:1.45;word-break:break-word;overflow-wrap:anywhere}
+.row-inline-meta{font-size:.78rem;font-weight:600;color:var(--muted)}
+.row-hidden{
+  display:inline-flex;
+  align-items:center;
+  margin-left:6px;
+  padding:2px 7px;
+  border-radius:999px;
+  background:#fee2e2;
+  color:#b91c1c;
+  font-size:.72rem;
+  font-weight:800;
+  vertical-align:middle;
+}
+.row-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:6px}
+.row-sub{font-size:.78rem;color:var(--muted);margin-top:6px;line-height:1.45}
+.row-side{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.entry-button-card{padding:16px 18px}
+.entry-button-card .btn{margin:0}
+.entry-button-card .btn-row{margin-top:0}
+.modal-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:20px max(16px,env(safe-area-inset-right)) calc(20px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));background:rgba(15,23,42,.38);backdrop-filter:blur(10px);z-index:60}
+.modal-sheet{width:min(560px,100%);max-height:min(88dvh,920px);overflow:auto;background:linear-gradient(180deg,#fff,#f8fbff);border:1px solid rgba(37,99,235,.16);border-radius:24px;box-shadow:0 28px 80px rgba(15,23,42,.22);padding:22px}
+.modal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.modal-head h3{font-size:1.1rem}
+.modal-close{border:none;background:#e8eef8;color:#42526b;width:34px;height:34px;border-radius:999px;font-size:1rem;cursor:pointer}
+.modal-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}
+.modal-meta .info-item{background:rgba(255,255,255,.86);padding:10px 12px;border-radius:14px;border:1px solid rgba(37,99,235,.08)}
+.modal-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.modal-actions .btn{width:auto}
+.detail-panel{
+  background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(245,249,255,.94));
+  border:1px solid rgba(37,99,235,.10);
+  border-radius:20px;
+  padding:18px;
+}
+.detail-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.detail-title{font-size:1.18rem;font-weight:800;color:var(--text)}
+.detail-summary{font-size:.84rem;color:var(--muted);margin-top:6px;line-height:1.55}
+.detail-facts{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.detail-fact{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:7px 11px;
+  border-radius:999px;
+  background:rgba(255,255,255,.88);
+  border:1px solid rgba(37,99,235,.10);
+  font-size:.78rem;
+  color:#475569;
+}
+.detail-meta{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+  margin-top:14px;
+}
+.detail-meta .stat{padding:12px}
+.detail-block{margin-top:16px}
+.detail-block h3{font-size:.9rem;margin-bottom:8px;color:var(--text)}
+.info-list{display:flex;flex-direction:column;gap:8px}
+.info-item{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px 12px;
+  border-radius:14px;
+  background:rgba(255,255,255,.72);
+  border:1px solid rgba(37,99,235,.08);
+}
+.info-item strong{font-size:.8rem;color:#42526b}
+.info-item span{font-size:.82rem;color:var(--text);text-align:right;min-width:0}
+.participant-peek{display:flex;flex-wrap:wrap;gap:8px}
+.participant-chip{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:7px 11px;
+  border-radius:999px;
+  background:rgba(255,255,255,.88);
+  border:1px solid rgba(37,99,235,.10);
+  font-size:.78rem;
+}
+.page-kicker{font-size:.76rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--primary);margin-bottom:4px}
+.compact-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.compact-meta span{
+  display:inline-flex;
+  align-items:center;
+  padding:6px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,.78);
+  border:1px solid rgba(37,99,235,.08);
+  font-size:.76rem;
+  color:var(--muted);
+}
+.action-strip{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.action-strip .btn{width:auto}
+
+/* ===== Organizer Time Grid ===== */
+.week-section{margin-bottom:20px}
+.week-title{font-size:.82rem;font-weight:700;color:#475569;padding:6px 0;border-bottom:2px solid #E2E8F0;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+.org-grid-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -20px;padding:0 20px}
+.org-grid{display:grid;gap:1px;min-width:fit-content;background:#E2E8F0}
+.org-grid>div{background:#fff}
+.org-grid .corner{position:sticky;left:0;z-index:3;background:#fff;min-width:50px}
+.org-grid .dh{text-align:center;font-size:.72rem;font-weight:600;color:#475569;padding:4px 2px;min-width:46px;position:sticky;top:0;z-index:2;line-height:1.3}
+.org-grid .dh.we{background:#FFF7ED;color:#EA580C}
+.org-grid .dh .dow{font-size:.62rem;color:#94A3B8}
+.org-grid .dh.we .dow{color:#FDBA74}
+.org-grid .tl{padding:0 6px 0 4px;position:sticky;left:0;z-index:2;background:#fff;min-width:58px;min-height:26px;line-height:1;overflow:visible;pointer-events:none}
+.org-cell{min-width:46px;min-height:26px;cursor:pointer;transition:background .08s;-webkit-tap-highlight-color:transparent;user-select:none}
+.org-cell.we{background:#FFFBF5}
+.org-cell.excluded{background:#94A3B8!important;cursor:not-allowed}
+.org-cell.sel{background:#3B82F6!important}
+.org-cell.preview-add{background:#93C5FD!important}
+.org-cell.preview-rm{background:#FCA5A5!important}
+.org-cell:hover:not(.sel){background:#EFF6FF}
+
+/* Quick presets for org grid */
+.preset-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+.preset-btn{padding:4px 10px;border:1px solid #E2E8F0;border-radius:6px;font-size:.72rem;cursor:pointer;background:#fff;color:#64748B;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.preset-btn:hover{background:#EFF6FF;border-color:#3B82F6;color:#3B82F6}
+
+/* Date range picker */
+.range-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;padding:10px 12px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0}
+.range-bar label{font-size:.82rem;font-weight:600;color:#475569;white-space:nowrap}
+.range-bar input[type="date"]{padding:6px 8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:.85rem;background:#fff;color:#1E293B;width:140px}
+.range-bar input[type="date"]:focus{outline:none;border-color:#3B82F6}
+.dur-btns{display:flex;gap:4px}
+.dur-btn{padding:5px 12px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:.78rem;font-weight:600;cursor:pointer;background:#fff;color:#64748B;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.dur-btn:hover{border-color:#3B82F6;color:#3B82F6}
+.dur-btn.active{background:#3B82F6;color:#fff;border-color:#3B82F6}
+
+/* Granularity */
+.gran-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.gran-row label{font-size:.82rem;color:#64748B}
+
+/* ===== Participant Availability Grid ===== */
+.grid-wrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -20px;padding:0 20px 4px}
+.avail-grid{display:grid;gap:2px;min-width:fit-content}
+.avail-grid .corner{position:sticky;left:0;z-index:3;background:#fff}
+.avail-grid .dh{text-align:center;font-size:.72rem;font-weight:600;color:#475569;padding:5px 3px;min-width:50px;background:#fff;position:sticky;top:0;z-index:2;line-height:1.3}
+.avail-grid .dh.we{background:#FFF7ED;color:#EA580C}
+.avail-grid .dh .dow{font-size:.62rem;color:#94A3B8}
+.avail-grid .tl{padding:0 6px 0 4px;min-width:58px;position:sticky;left:0;z-index:2;background:#fff;line-height:1;min-height:44px;overflow:visible;pointer-events:none}
+.avail-cell{min-width:48px;min-height:44px;border-radius:4px;border:1px solid #E2E8F0;cursor:pointer;transition:background .1s;-webkit-tap-highlight-color:transparent;user-select:none}
+.avail-cell.we{background:#FFFBF5;border-color:#FED7AA}
+.avail-cell.available{background:#22C55E!important;border-color:#16A34A!important}
+.avail-cell.maybe{background:#FBBF24!important;border-color:#F59E0B!important}
+.avail-cell.disabled{background:#E2E8F0!important;border-color:#CBD5E1!important;cursor:not-allowed;pointer-events:none}
+.avail-cell:hover:not(.disabled){opacity:.85}
+
+/* Week border */
+.wb{border-left:3px solid #CBD5E1!important}
+
+/* Heatmap */
+.heat-cell{min-width:48px;min-height:44px;border-radius:4px;border:1px solid #E2E8F0;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;cursor:pointer;transition:all .15s}
+.heat-cell.level-0{background:#F1F5F9;color:#94A3B8}
+.heat-cell.level-1{background:#BBF7D0;color:#166534}
+.heat-cell.level-2{background:#4ADE80;color:#fff}
+.heat-cell.level-3{background:#22C55E;color:#fff}
+.heat-cell.level-4{background:#16A34A;color:#fff}
+.heat-cell.level-5{background:#15803D;color:#fff}
+.heat-cell:hover{transform:scale(1.06);z-index:1;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.tl-start{
+  position:absolute;
+  right:6px;
+  top:-4px;
+  display:block;
+  font-size:.68rem;
+  font-weight:800;
+  color:#1f2937;
+  letter-spacing:.01em;
+  line-height:1;
+}
+.tl-end{
+  position:absolute;
+  right:6px;
+  bottom:-4px;
+  display:block;
+  font-size:.56rem;
+  font-weight:700;
+  color:#7f1d1d;
+  opacity:.9;
+  line-height:1;
+}
+.date-picker-grid{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:8px;
+}
+.date-pick-cell{
+  text-align:center;
+  font-size:.72rem;
+  font-weight:600;
+  color:#475569;
+  padding:8px 2px;
+  border-radius:10px;
+  border:2px solid transparent;
+  background:#fff;
+  min-height:56px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  line-height:1.25;
+}
+.date-pick-cell .dow{font-size:.62rem;color:#94A3B8}
+.date-pick-cell.we{background:#FFF7ED;color:#EA580C}
+.date-pick-cell.we .dow{color:#FDBA74}
+.date-pick-cell.past{background:#E2E8F0;color:#94A3B8}
+.date-pick-cell.clickable{cursor:pointer}
+
+/* Tooltip */
+.tooltip{position:fixed;background:#1E293B;color:#fff;padding:10px 14px;border-radius:8px;font-size:.8rem;z-index:100;pointer-events:none;max-width:240px;line-height:1.5;box-shadow:0 4px 12px rgba(0,0,0,.3);display:none}
+.tooltip .tt{font-weight:700;margin-bottom:3px}
+.tooltip .ta{color:#4ADE80}
+.tooltip .tm{color:#FBBF24}
+
+/* Rec cards */
+.rec-card{background:linear-gradient(135deg,#ECFDF5,#F0FDF4);border:1.5px solid #BBF7D0;border-radius:12px;padding:14px;margin-bottom:10px}
+.rec-card .rr{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#22C55E;color:#fff;font-weight:700;font-size:.82rem;margin-right:7px}
+.rec-card .rt{font-size:.95rem;font-weight:700;color:#166534}
+.rec-card .rd{font-size:.82rem;color:#15803D;margin-top:2px}
+.rec-card .rp{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.rec-card .rp-chip{
+  display:inline-flex;
+  align-items:center;
+  padding:4px 8px;
+  border-radius:999px;
+  background:rgba(255,255,255,.9);
+  border:1px solid rgba(34,197,94,.18);
+  font-size:.74rem;
+  color:#475569;
+  font-weight:700;
+}
+.rec-card .rp-chip.em{color:#166534}
+
+/* Participant list */
+.plist{list-style:none}
+.plist li{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #F1F5F9;font-size:.88rem}
+.sdot{width:8px;height:8px;border-radius:50%}
+.sdot.ok{background:#22C55E}.sdot.no{background:#E2E8F0}
+
+/* Share box */
+.share-box{
+  background:
+    radial-gradient(circle at top right,rgba(37,99,235,.14),transparent 24%),
+    linear-gradient(135deg,#f8fbff,#edf5ff);
+  border:1.5px solid rgba(37,99,235,.16);
+  border-radius:18px;
+  padding:18px;
+  text-align:center;
+  margin-bottom:16px;
+}
+.share-url{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;font-size:.82rem;word-break:break-word;overflow-wrap:anywhere;margin:8px 0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--text)}
+
+/* Auth tabs */
+.modal-tabs{display:flex;margin-bottom:14px;border-radius:8px;overflow:hidden;border:1.5px solid #E2E8F0}
+.modal-tab{flex:1;padding:8px;text-align:center;font-size:.82rem;font-weight:600;cursor:pointer;background:#fff;color:#64748B;border:none}
+.modal-tab.active{background:#3B82F6;color:#fff}
+
+/* Join input */
+.join-row{display:flex;gap:8px;margin-top:8px}
+.join-row input{flex:1}
+.join-row .btn{width:auto;flex-shrink:0}
+
+/* Toast */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(22,32,51,.92);color:#fff;padding:11px 20px;border-radius:999px;font-size:.82rem;z-index:200;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;box-shadow:0 16px 28px rgba(15,23,42,.28)}
+.toast.show{opacity:1}
+
+/* Drag indicator */
+.drag-ind{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#3B82F6;color:#fff;padding:7px 16px;border-radius:20px;font-size:.78rem;font-weight:600;z-index:50;display:none;box-shadow:0 2px 8px rgba(59,130,246,.4)}
+.drag-ind.show{display:block}
+
+/* Loading */
+.loading{text-align:center;padding:44px;color:var(--muted)}
+.spinner{display:inline-block;width:34px;height:34px;border:3px solid #dbe5f4;border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Legend */
+.legend{display:flex;gap:14px;justify-content:center;margin:10px 0;flex-wrap:wrap;padding:10px 12px;border-radius:16px;background:rgba(248,251,255,.7);border:1px solid rgba(37,99,235,.08)}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:.72rem;color:var(--muted)}
+.lc{width:14px;height:14px;border-radius:3px;border:1px solid rgba(0,0,0,.1)}
+
+/* Responsive */
+@media(max-width:820px){
+  .container{padding-top:16px}
+  .card{padding:18px}
+  .list-row{align-items:flex-start}
+  .row-side{justify-content:flex-start}
+}
+@media(max-width:640px){
+  .header{padding-top:calc(18px + env(safe-area-inset-top))}
+  .header h1{font-size:1.38rem;letter-spacing:.04em;margin-top:36px}
+  .header .sub{font-size:.8rem}
+  .header-role,
+  .header-account{
+    padding:7px 10px;
+    min-width:96px;
+    font-size:.78rem;
+  }
+  .header-left,
+  .header-home{
+    top:12px;
+  }
+  .header-left{left:max(12px,env(safe-area-inset-left))}
+  .header-home{padding:7px 10px}
+  .header-right{
+    top:12px;
+    right:max(12px,env(safe-area-inset-right));
+    gap:6px;
+  }
+  .header-account-icon{width:22px;height:22px}
+  .header-pop{
+    min-width:176px;
+    border-radius:16px;
+  }
+  .role-cards{flex-direction:column}
+  .fr{flex-direction:column;gap:0}
+  .stat-grid{grid-template-columns:1fr}
+  .detail-meta{grid-template-columns:1fr}
+  .activity-actions .btn{width:100%}
+  .btn-row{flex-direction:column}
+  .btn-row .btn{width:100%}
+  .action-strip{flex-direction:column}
+  .action-strip .btn{width:100%}
+  .dash-head{align-items:flex-start}
+  .dash-head > *{width:100%}
+  .join-row{flex-direction:column}
+  .join-row .btn{width:100%}
+  .seed-item{flex-direction:column;align-items:flex-start}
+  .seed-item > div:last-child{width:100%;justify-content:flex-start}
+  .compact-meta{gap:6px}
+  .compact-meta span{width:100%;justify-content:center}
+  .rolebar{
+    top:0;
+    gap:10px;
+    align-items:stretch;
+  }
+  .rolebar{display:none}
+  .list-row{
+    display:block;
+    padding:14px;
+  }
+  .row-main,
+  .row-side{width:100%}
+  .row-title{font-size:.96rem;line-height:1.5}
+  .row-badges{margin-top:8px}
+  .row-sub{margin-top:8px;line-height:1.5}
+  .row-side{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:10px;
+  }
+  .row-side .btn{
+    width:auto;
+    margin:0;
+    padding:0;
+    border:none;
+    border-radius:0;
+    background:none;
+    box-shadow:none;
+    min-height:auto;
+    color:var(--primary);
+    font-size:.84rem;
+    font-weight:700;
+    text-decoration:none;
+  }
+  .row-side .btn:hover{
+    transform:none;
+    background:none;
+    box-shadow:none;
+    color:var(--primary-strong);
+  }
+  .row-side .btn-s,
+  .row-side .btn-o{color:#475569}
+  .row-side .btn-g{color:var(--accent)}
+  .row-side .btn-p{color:var(--primary)}
+  .row-side .btn + .btn::before{
+    content:"/";
+    color:#c0cad9;
+    margin-right:10px;
+  }
+  .modal-overlay{
+    align-items:flex-end;
+    padding:12px max(10px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left));
+  }
+  .modal-sheet{
+    width:100%;
+    max-height:min(92dvh,920px);
+    border-radius:24px 24px 18px 18px;
+    padding:18px 16px 20px;
+  }
+  .modal-head{position:sticky;top:0;background:linear-gradient(180deg,#fff 78%,rgba(255,255,255,0));padding-bottom:8px;z-index:2}
+  .detail-facts{gap:6px}
+  .detail-fact{width:100%;justify-content:flex-start}
+  .info-item{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+  .info-item span{text-align:left}
+  .grid-wrapper,
+  .org-grid-wrap{
+    margin:0 -18px;
+    padding:0 18px 4px;
+  }
+  .avail-grid .dh,
+  .avail-grid .tl,
+  .org-grid .dh,
+  .org-grid .tl{
+    min-width:44px;
+  }
+  .avail-grid .tl{min-height:42px}
+  .avail-cell,
+  .heat-cell{min-width:44px;min-height:42px}
+  .org-cell{min-width:42px;min-height:26px}
+  .date-picker-grid{gap:6px}
+  .date-pick-cell{min-height:52px;font-size:.68rem;padding:6px 2px}
+  .legend{justify-content:flex-start}
+  .share-box{padding:16px}
+  .share-url{font-size:.78rem}
+  .toast{
+    left:12px;
+    right:12px;
+    bottom:calc(18px + env(safe-area-inset-bottom));
+    transform:none;
+    border-radius:16px;
+    text-align:center;
+  }
+}
+@media(min-width:768px){.container{padding:24px}.avail-cell,.heat-cell{min-width:60px;min-height:48px}.org-cell{min-width:56px;min-height:28px}}
+
+/* Event switcher bar */
+.ebar{
+  background:rgba(248,251,255,.72);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(217,227,243,.9);
+  padding:8px 16px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.ebar-label{font-size:.72rem;color:var(--muted);white-space:nowrap;flex-shrink:0;font-weight:700}
+.ebar-item{padding:6px 12px;border-radius:999px;font-size:.78rem;font-weight:700;cursor:pointer;white-space:nowrap;border:1px solid rgba(37,99,235,.10);background:rgba(255,255,255,.88);color:#5a6b84;transition:all .15s;-webkit-tap-highlight-color:transparent;flex-shrink:0}
+.ebar-item:hover{border-color:rgba(37,99,235,.28);color:var(--primary)}
+.ebar-item.active{background:linear-gradient(135deg,var(--primary),var(--primary-strong));color:#fff;border-color:transparent;box-shadow:0 12px 24px rgba(37,99,235,.22)}
+.ebar-item .ebar-x{margin-left:4px;opacity:.5;font-size:.68rem}
+.ebar-item .ebar-x:hover{opacity:1}
+
+.hidden{display:none!important}
+.tc{text-align:center}
+.tm-c{color:#94A3B8;font-size:.82rem}
+.mt-8{margin-top:8px}.mt-16{margin-top:16px}.mb-8{margin-bottom:8px}.mb-16{margin-bottom:16px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-menu-group" onmouseenter="setHeaderMenu('home',true)" onmouseleave="setHeaderMenu('home',false)">
+      <button class="header-home" onclick="toggleHeaderMenu('home',event)" title="返回首页">首页</button>
+      <div id="header-home-menu" class="header-pop"></div>
+    </div>
+  </div>
+  <div class="header-right">
+    <button id="header-role" class="header-role" onclick="openRoleSwitcher()"></button>
+    <div class="header-menu-group" onmouseenter="setHeaderMenu('account',true)" onmouseleave="setHeaderMenu('account',false)">
+      <button id="header-account" class="header-account" onclick="toggleHeaderMenu('account',event)"></button>
+      <div id="header-account-menu" class="header-pop right"></div>
+    </div>
+  </div>
+  <h1 onclick="nav('/')" title="返回首页">约聚会时间</h1>
+  <div class="sub">发起、参与、投票、约聚会时间</div>
+</div>
+<div id="role-bar"></div>
+<div id="event-bar"></div>
+<div class="container" id="app"></div>
+<div class="tooltip" id="tooltip"></div>
+<div class="toast" id="toast"></div>
+<div class="drag-ind" id="drag-ind"></div>
+<div id="modal-root"></div>
+
+<script>
+// ===== State =====
+const S = {
+  activeRole: localStorage.getItem('active_role')||'organizer',
+  // Create/edit
+  title:'', organizer:'', eventType:'online', location:'', description:'',
+  granularity: 60,
+  orgSlots: new Set(),    // "YYYY-MM-DD_HH:MM"
+  pickedDates: new Set(), // "YYYY-MM-DD" — dates selected in stage 1
+  rangeStart: null,
+  rangeDays: 7,
+  timeStart: 8,  // hour: visible range start (default 08:00)
+  timeEnd: 21,   // hour: visible range end   (default 21:00)
+  hideUnpicked: false, // true = only show picked dates in stage 2
+  excludedSlots: new Set(), // "YYYY-MM-DD_HH:MM" — blocked slots (dark)
+  excludeRules: [],         // [{text, active}] — exclusion rules
+  editingEventId: null,
+  adminToken: null,
+  dashboardSelection: {manager:null, organizer:null, participant:null},
+  homeReqSeq: 0,
+  // Event view
+  currentEvent: null,
+  participant: null,
+  myAvailability: {},
+  results: null,
+};
+
+const app = document.getElementById('app');
+const roleBar = document.getElementById('role-bar');
+const tooltip = document.getElementById('tooltip');
+const toastEl = document.getElementById('toast');
+const dragInd = document.getElementById('drag-ind');
+const modalRoot = document.getElementById('modal-root');
+const headerRole = document.getElementById('header-role');
+const headerAccount = document.getElementById('header-account');
+const headerHomeMenu = document.getElementById('header-home-menu');
+const headerAccountMenu = document.getElementById('header-account-menu');
+const headerMenuTimers = {home:null, account:null};
+
+const WD = ['日','一','二','三','四','五','六'];
+const ROLE_ORDER = ['manager','organizer','participant'];
+const SEEDED_USERS = [
+  {seed_key:'a', username:'a', name:'a', password:'123', roles:['manager','organizer','participant']},
+  {seed_key:'zhangsan', username:'zhangsan', name:'张三', password:'123456', roles:['manager','organizer','participant']},
+  {seed_key:'lisi', username:'lisi', name:'李四', password:'123456', roles:['organizer','participant']},
+  {seed_key:'wangwu', username:'wangwu', name:'王五', password:'123456', roles:['participant']},
+  {seed_key:'zhaoliu', username:'zhaoliu', name:'赵六', password:'123456', roles:['organizer','participant']},
+  {seed_key:'qianqi', username:'qianqi', name:'钱七', password:'123456', roles:['participant']},
+];
+const SEEDED_USERNAMES = new Set(SEEDED_USERS.map(u=>u.username));
+
+// ===== Router =====
+function nav(h){window.location.hash=h}
+function getRoute(){return window.location.hash.slice(1)||'/'}
+window.addEventListener('hashchange', route);
+window.addEventListener('load', route);
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.header-menu-group')) closeHeaderMenus();
+});
+
+function route(){
+  clearInterval(window._rt);
+  closeHeaderMenus();
+  closeModal();
+  ensureSeededUsers();
+  normalizeActiveRole();
+  const r=getRoute();
+  if((r==='/create'||r.match(/^\/event\/[a-z0-9]+\/edit$/))&&!hasRoleAccess('organizer')&&!hasRoleAccess('manager')){
+    nav('/');
+    return;
+  }
+  if(r==='/account/manage'&&!hasRoleAccess('manager')){
+    nav('/account');
+    return;
+  }
+  if(r==='/join'&&!hasRoleAccess('participant')){
+    nav('/');
+    return;
+  }
+  if((r==='/create'||r.match(/^\/event\/[a-z0-9]+\/edit$/))&&S.activeRole!=='manager') applyRole('organizer');
+  else if(r==='/join'&&S.activeRole!=='manager') applyRole('participant');
+  normalizeActiveRole();
+  updateRoleBar();
+  updateEventBar();
+  if(r==='/') renderHome();
+  else if(r==='/account') renderAccountPage();
+  else if(r==='/account/manage') renderAccountManagePage();
+  else if(r==='/create') renderCreateEdit(null);
+  else if(r==='/join') renderJoinPage();
+  else if(r.match(/^\/event\/[a-z0-9]+\/edit$/)) renderCreateEdit(r.match(/\/event\/([a-z0-9]+)/)[1]);
+  else if(r.match(/^\/event\/[a-z0-9]+\/results$/)) renderResults(r.match(/\/event\/([a-z0-9]+)/)[1]);
+  else if(r.match(/^\/event\/[a-z0-9]+$/)) renderEvent(r.match(/\/event\/([a-z0-9]+)$/)[1]);
+  else renderHome();
+}
+
+function applyRole(role){
+  if(role==='manager') S.activeRole='manager';
+  else if(role==='participant') S.activeRole='participant';
+  else S.activeRole='organizer';
+  localStorage.setItem('active_role',S.activeRole);
+}
+function roleName(role){
+  if(role==='manager') return '管理者';
+  return role==='participant'?'参与人':'发起人';
+}
+function roleHint(role){
+  if(role==='manager') return '查看所有本机可见活动并快速进入';
+  return role==='participant'?'加入活动并填写空闲时间':'创建活动并管理候选时间';
+}
+function normalizeRoles(roles){
+  const set=new Set((Array.isArray(roles)?roles:[]).filter(role=>ROLE_ORDER.includes(role)));
+  if(set.has('organizer')) set.add('participant');
+  return ROLE_ORDER.filter(role=>set.has(role));
+}
+function formatRoleNames(roles){
+  return normalizeRoles(roles).map(roleName).join('、')||'未设置';
+}
+function getAvailableRoles(account=getCurrentAccount()){
+  return normalizeRoles(account?.roles);
+}
+function hasRoleAccess(role, account=getCurrentAccount()){
+  return getAvailableRoles(account).includes(role);
+}
+function getDefaultRole(account=getCurrentAccount()){
+  const roles=getAvailableRoles(account);
+  if(roles.includes('manager')) return 'manager';
+  if(roles.includes('organizer')) return 'organizer';
+  if(roles.includes('participant')) return 'participant';
+  return 'participant';
+}
+function normalizeActiveRole(){
+  if(hasRoleAccess(S.activeRole)) return;
+  S.activeRole=getDefaultRole();
+  localStorage.setItem('active_role',S.activeRole);
+}
+function getCurrentEventId(){
+  const m=getRoute().match(/\/event\/([a-z0-9]+)/);
+  return m?m[1]:'';
+}
+function getStoredUsers(){
+  try{
+    const users=JSON.parse(localStorage.getItem('app_users')||'[]');
+    return Array.isArray(users)?users.map(u=>({...u,seed_key:u.seed_key||'',roles:normalizeRoles(u.roles)})):[];
+  }catch(e){return[]}
+}
+function saveStoredUsers(users){
+  localStorage.setItem('app_users',JSON.stringify((users||[]).map(u=>({...u,seed_key:u.seed_key||'',roles:normalizeRoles(u.roles)}))));
+}
+function upsertStoredUser(user){
+  const next={...user,seed_key:user.seed_key||'',roles:normalizeRoles(user.roles)};
+  const users=getStoredUsers().filter(u=>u.username!==next.username);
+  users.push(next);
+  saveStoredUsers(users);
+}
+function mergeStoredUsers(remoteUsers){
+  const remote=(remoteUsers||[]).map(u=>({...u,seed_key:u.seed_key||'',roles:normalizeRoles(u.roles)}));
+  const local=getStoredUsers();
+  const byUsername=new Map(local.map(u=>[u.username,{...u,seed_key:u.seed_key||'',roles:normalizeRoles(u.roles)}]));
+  remote.forEach(u=>byUsername.set(u.username,u));
+  const merged=Array.from(byUsername.values());
+  const prev=JSON.stringify(local.slice().sort((a,b)=>a.username.localeCompare(b.username,'zh-CN')));
+  const next=JSON.stringify(merged.slice().sort((a,b)=>a.username.localeCompare(b.username,'zh-CN')));
+  if(prev!==next) saveStoredUsers(merged);
+  return merged;
+}
+async function syncAccountsFromServer(rerender=false){
+  try{
+    const remote=await api('GET','/api/accounts');
+    const merged=mergeStoredUsers(remote);
+    const current=getCurrentAccount();
+    if(current){
+      const refreshed=merged.find(u=>u.username===current.username);
+      if(refreshed) localStorage.setItem('current_account',JSON.stringify(refreshed));
+    }
+    if(rerender&&(getRoute()==='/account'||getRoute()==='/account/manage')){
+      if(getRoute()==='/account/manage') renderAccountManagePage();
+      else renderAccountPage();
+    }
+  }catch(e){}
+}
+function isSeededUser(user){
+  return !!(user?.seed_key||SEEDED_USERNAMES.has(user?.username||''));
+}
+function ensureSeededUsers(){
+  const existing=getStoredUsers();
+  if(existing.length===0){saveStoredUsers(SEEDED_USERS);return}
+  const bySeedKey=new Map(existing.filter(u=>u.seed_key).map(u=>[u.seed_key,u]));
+  const byUsername=new Map(existing.map(u=>[u.username,u]));
+  let changed=false;
+  SEEDED_USERS.forEach(seed=>{
+    const prev=bySeedKey.get(seed.seed_key)||byUsername.get(seed.username);
+    if(!prev){
+      byUsername.set(seed.username,seed);
+      changed=true;
+      return;
+    }
+    const next={...seed,...prev,seed_key:prev.seed_key||seed.seed_key};
+    if(JSON.stringify(next)!==JSON.stringify(prev)){
+      byUsername.delete(prev.username);
+      byUsername.set(next.username,next);
+      changed=true;
+    }
+  });
+  if(changed) saveStoredUsers(Array.from(byUsername.values()));
+}
+function getCurrentAccount(){
+  try{return JSON.parse(localStorage.getItem('current_account')||'null')}catch(e){return null}
+}
+function clearEventSessionState(){
+  Object.keys(localStorage).forEach(k=>{
+    if(k.startsWith('token_')||k.startsWith('admin_')) localStorage.removeItem(k);
+  });
+  localStorage.setItem('my_events','[]');
+  S.participant=null;
+  S.adminToken=null;
+  S.dashboardSelection={manager:null,organizer:null,participant:null};
+}
+function setCurrentAccount(account, preserveSessions=false){
+  const prev=getCurrentAccount();
+  if(!preserveSessions&&prev?.username&&prev.username!==account.username) clearEventSessionState();
+  localStorage.setItem('current_account',JSON.stringify({...account,seed_key:account.seed_key||'',roles:normalizeRoles(account.roles)}));
+  localStorage.removeItem('manual_logout');
+  setSessionUserName(account.name||account.username);
+  S.activeRole=getDefaultRole({...account,roles:normalizeRoles(account.roles)});
+  localStorage.setItem('active_role',S.activeRole);
+}
+function clearCurrentAccount(){
+  localStorage.removeItem('current_account');
+}
+function ensureDefaultAccount(){
+  return null;
+}
+function rememberPendingEvent(eid,title=''){
+  if(!eid) return;
+  localStorage.setItem('pending_event_id',eid);
+  if(title) localStorage.setItem('pending_event_title',title);
+}
+function clearPendingEvent(){
+  localStorage.removeItem('pending_event_id');
+  localStorage.removeItem('pending_event_title');
+}
+function getPendingEventId(){
+  return localStorage.getItem('pending_event_id')||'';
+}
+function getSessionUserName(){
+  const account=getCurrentAccount();
+  if(account?.name) return account.name;
+  return localStorage.getItem('session_user_name')||'';
+}
+function setSessionUserName(name){
+  if(name) localStorage.setItem('session_user_name',name);
+}
+function openLoginEntry(){
+  const eid=getCurrentEventId();
+  if(eid) rememberPendingEvent(eid);
+  nav('/account');
+}
+function canUseQuickSwitch(account=getCurrentAccount()){
+  return !!account&&(account.roles||[]).includes('manager');
+}
+function closeHeaderMenus(){
+  Object.keys(headerMenuTimers).forEach(name=>{
+    if(headerMenuTimers[name]){
+      clearTimeout(headerMenuTimers[name]);
+      headerMenuTimers[name]=null;
+    }
+  });
+  headerHomeMenu.classList.remove('open');
+  headerAccountMenu.classList.remove('open');
+}
+function setHeaderMenu(name, open){
+  const menu=name==='home'?headerHomeMenu:headerAccountMenu;
+  if(!menu) return;
+  if(open){
+    if(headerMenuTimers[name]){
+      clearTimeout(headerMenuTimers[name]);
+      headerMenuTimers[name]=null;
+    }
+    renderHeaderMenu(name);
+    menu.classList.add('open');
+  }else{
+    if(headerMenuTimers[name]) clearTimeout(headerMenuTimers[name]);
+    headerMenuTimers[name]=setTimeout(()=>{
+      menu.classList.remove('open');
+      headerMenuTimers[name]=null;
+    },220);
+  }
+}
+function toggleHeaderMenu(name, ev){
+  ev?.stopPropagation?.();
+  const menu=name==='home'?headerHomeMenu:headerAccountMenu;
+  if(!menu) return;
+  if(headerMenuTimers[name]){
+    clearTimeout(headerMenuTimers[name]);
+    headerMenuTimers[name]=null;
+  }
+  const next=!menu.classList.contains('open');
+  closeHeaderMenus();
+  if(next){
+    renderHeaderMenu(name);
+    menu.classList.add('open');
+  }
+}
+function navFromHeader(path){
+  closeHeaderMenus();
+  nav(path);
+}
+function runHeaderAction(action){
+  closeHeaderMenus();
+  action();
+}
+function renderHeaderMenu(name){
+  if(name==='home'){
+    const account=getCurrentAccount();
+    const items=[
+      `<button class="header-pop-item" onclick="navFromHeader('/')"><span>首页</span><small>活动列表</small></button>`
+    ];
+    if(account&&(account.roles||[]).includes('organizer')){
+      items.push(`<button class="header-pop-item" onclick="navFromHeader('/create')"><span>发起新的活动</span><small>创建新活动</small></button>`);
+    }
+    if(account){
+      items.push(`<button class="header-pop-item" onclick="navFromHeader('/join')"><span>输入活动号码</span><small>加入活动</small></button>`);
+    }
+    if((account?.roles||[]).includes('manager')){
+      items.push('<div class="header-pop-divider"></div>');
+      items.push(`<button class="header-pop-item" onclick="navFromHeader('/account/manage')"><span>用户管理</span><small>账号与角色</small></button>`);
+    }
+    headerHomeMenu.innerHTML=items.join('');
+    return;
+  }
+  const account=getCurrentAccount();
+  if(!account){
+    headerAccountMenu.innerHTML=`
+      <div class="header-pop-note">当前未登录</div>
+      <button class="header-pop-item" onclick="navFromHeader('/account')"><span>登录 / 注册</span><small>进入账户页</small></button>`;
+    return;
+  }
+  const items=[
+    `<div class="header-pop-note">${esc(account.name)} · ${esc(formatRoleNames(account.roles))}</div>`,
+    `<button class="header-pop-item" onclick="runHeaderAction(()=>openAccountProfileEditor())"><span>更新账户资料</span><small>用户名与密码</small></button>`
+  ];
+  if(canUseQuickSwitch(account)){
+    items.push(`<button class="header-pop-item" onclick="navFromHeader('/account')"><span>切换账户</span><small>快速切换</small></button>`);
+    items.push(`<button class="header-pop-item" onclick="navFromHeader('/account/manage')"><span>用户管理</span><small>管理角色</small></button>`);
+  }
+  items.push('<div class="header-pop-divider"></div>');
+  items.push(`<button class="header-pop-item" onclick="runHeaderAction(()=>logoutSession())"><span>退出登录</span><small>返回账户页</small></button>`);
+  headerAccountMenu.innerHTML=items.join('');
+}
+function updateHeaderAccount(){
+  const account=getCurrentAccount();
+  const label=account?.name||'登录';
+  headerAccount.innerHTML=`<span class="header-account-icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="8" r="3.5"></circle>
+      <path d="M5 19c1.8-3 4.3-4.5 7-4.5s5.2 1.5 7 4.5"></path>
+    </svg>
+  </span><span>${esc(label)}</span>`;
+}
+function updateHeaderRole(){
+  headerRole.innerHTML=`<strong>${esc(roleName(S.activeRole))}</strong>`;
+}
+function openHeaderAccount(){
+  toggleHeaderMenu('account');
+}
+function openRoleSwitcher(){
+  const account=getCurrentAccount();
+  const roles=getAvailableRoles();
+  if(!account){
+    modalRoot.innerHTML=`
+      <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+        <div class="modal-sheet" style="width:min(420px,100%)">
+          <div class="modal-head">
+            <div>
+              <div class="page-kicker">Role</div>
+              <h3>切换角色</h3>
+            </div>
+            <button class="modal-close" onclick="closeModal()">×</button>
+          </div>
+          <div class="detail-summary">当前还没有登录。登录后才能切换到发起人或管理者。</div>
+          <div class="action-strip mt-16">
+            <button class="btn btn-p btn-sm" onclick="closeModal();openLoginEntry()">登录</button>
+          </div>
+        </div>
+      </div>`;
+    return;
+  }
+  modalRoot.innerHTML=`
+    <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+      <div class="modal-sheet" style="width:min(420px,100%)">
+        <div class="modal-head">
+          <div>
+            <div class="page-kicker">Role</div>
+            <h3>切换角色</h3>
+          </div>
+          <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="detail-summary">${roles.length===1?`当前账号只有「${esc(roleName(roles[0]))}」角色。若要切换其他角色，请先退出当前账号再换一个账号登录。`:'选择要切换到的角色。'}</div>
+        <div class="seed-list">
+          ${roles.map(role=>`<button class="btn ${S.activeRole===role?'btn-p':'btn-s'}" onclick="closeModal();setActiveRole('${role}')">${roleName(role)}</button>`).join('')}
+        </div>
+        ${roles.length===1?`<div class="action-strip mt-16"><button class="btn btn-s btn-sm" onclick="closeModal();switchAccount()">切换账户</button></div>`:''}
+      </div>
+    </div>`;
+}
+function logoutSession(){
+  clearEventSessionState();
+  clearCurrentAccount();
+  localStorage.setItem('manual_logout','1');
+  localStorage.removeItem('session_user_name');
+  toast('已退出登录');
+  nav('/account');
+}
+function resolveRoleRoute(role,currentRoute=getRoute()){
+  if(role==='organizer'&&currentRoute==='/join') return '/create';
+  if(role==='participant'&&currentRoute==='/create') return '/join';
+  const editMatch=currentRoute.match(/^\/event\/([a-z0-9]+)\/edit$/);
+  if(role==='participant'&&editMatch) return `/event/${editMatch[1]}`;
+  return currentRoute;
+}
+function setActiveRole(role){
+  if(!hasRoleAccess(role)) return;
+  applyRole(role);
+  updateRoleBar();
+  const target='/';
+  if(target!==getRoute()) nav(target);
+  else route();
+}
+function goAsRole(role,path){
+  if(!hasRoleAccess(role)) return;
+  applyRole(role);
+  updateRoleBar();
+  if(path!==getRoute()) nav(path);
+  else route();
+}
+function goVote(eid){
+  const account=getCurrentAccount();
+  if(!account){
+    rememberPendingEvent(eid);
+    applyRole('participant');
+    updateRoleBar();
+    nav('/account');
+    return;
+  }
+  goAsRole('participant',`/event/${eid}`);
+}
+function goManage(eid){
+  const targetRole=S.activeRole==='manager'&&hasRoleAccess('manager')?'manager':'organizer';
+  if(!hasRoleAccess(targetRole)) return;
+  goAsRole(targetRole,`/event/${eid}`);
+}
+async function deleteOrganizerEvent(eid){
+  const token=localStorage.getItem('admin_'+eid);
+  if(!token&&S.activeRole!=='manager'){toast('没有删除权限');return}
+  if(!confirm('确认删除这个活动？删除后所有参与信息会一并移除。')) return;
+  const prevAdmin=S.adminToken, prevRole=S.activeRole;
+  try{
+    if(prevRole!=='manager') applyRole('organizer');
+    S.adminToken=token||null;
+    await api('DELETE',`/api/events/${eid}`);
+    localStorage.removeItem('admin_'+eid);
+    localStorage.removeItem('token_'+eid);
+    cleanupStoredEvent(eid);
+    toast('活动已删除');
+    nav('/');
+  }catch(e){
+    toast(e.message);
+  }finally{
+    S.adminToken=prevAdmin;
+    applyRole(prevRole);
+  }
+}
+async function toggleEventHidden(eid, isHidden){
+  const account=getCurrentAccount();
+  if(!(account?.roles||[]).includes('manager')){toast('只有管理者可以下架项目');return}
+  const nextHidden=!!isHidden;
+  const confirmText=nextHidden
+    ? '确认下架这个项目？下架后发起人、参与人和未登录用户都看不到它。'
+    : '确认重新上架这个项目？恢复后其他角色会重新看到它。';
+  if(!confirm(confirmText)) return;
+  const prevRole=S.activeRole;
+  try{
+    if(prevRole!=='manager') applyRole('manager');
+    await api('PUT',`/api/events/${eid}/visibility`,{is_hidden:nextHidden});
+    toast(nextHidden?'项目已下架':'项目已重新上架');
+    closeModal();
+    route();
+  }catch(e){
+    toast(e.message||'操作失败');
+  }finally{
+    applyRole(prevRole);
+  }
+}
+async function leaveParticipantEvent(eid){
+  const token=localStorage.getItem('token_'+eid);
+  if(!token){toast('你还没有参与这个活动');return}
+  if(!confirm('确认退出投票？你在这个活动里的投票时间会被删除，活动会移回其他活动列表。')) return;
+  const prevParticipant=S.participant;
+  try{
+    S.participant={token};
+    await api('DELETE',`/api/events/${eid}/participation`);
+    localStorage.removeItem('token_'+eid);
+    if(S.currentEvent?.id===eid) S.myAvailability={};
+    if(S.participant?.event_id===eid) S.participant=null;
+    cleanupStoredEvent(eid);
+    toast('已退出投票');
+    if(getRoute()===`/event/${eid}`) nav('/');
+    else route();
+  }catch(e){
+    toast(e.message);
+  }finally{
+    if(localStorage.getItem('token_'+eid)) S.participant=prevParticipant;
+    else if(prevParticipant?.event_id&&prevParticipant.event_id!==eid) S.participant=prevParticipant;
+    else S.participant=null;
+  }
+}
+function selectDashboardEvent(eid){
+  S.dashboardSelection[S.activeRole]=eid;
+  openDashboardDetailModal(eid);
+}
+function switchAccount(){nav('/account')}
+function openAccountProfileEditor(){
+  const account=getCurrentAccount();
+  if(!account){openLoginEntry();return}
+  modalRoot.innerHTML=`
+    <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+      <div class="modal-sheet" style="width:min(460px,100%)">
+        <div class="modal-head">
+          <div>
+            <div class="page-kicker">Profile</div>
+            <h3>更新账户资料</h3>
+          </div>
+          <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="fg"><label>用户名</label><input id="profile-u" value="${esc(account.username)}" placeholder="登录用账号名"></div>
+        <div class="fg"><label>显示名</label><input id="profile-n" value="${esc(account.name)}" placeholder="页面显示名称"></div>
+        <div class="fg"><label>密码</label><input id="profile-p" type="password" value="${esc(account.password||'')}" placeholder="至少 3 位"></div>
+        <p class="tm-c">修改后会立即保存。用户名必须保持唯一。</p>
+        <div class="action-strip mt-16">
+          <button class="btn btn-p btn-sm" onclick="saveAccountProfile()">保存资料</button>
+          <button class="btn btn-s btn-sm" onclick="closeModal()">取消</button>
+        </div>
+      </div>
+    </div>`;
+}
+function updateRoleBar(){
+  updateHeaderAccount();
+  updateHeaderRole();
+  roleBar.innerHTML='';
+}
+
+// ===== Util =====
+function toast(m){toastEl.textContent=m;toastEl.classList.add('show');setTimeout(()=>toastEl.classList.remove('show'),2500)}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function getAuthToken(){
+  const route=getRoute();
+  if(route.match(/^\/event\/[a-z0-9]+\/edit$/)) return S.adminToken;
+  if(S.activeRole==='manager') return S.adminToken;
+  if(S.activeRole==='organizer'&&S.adminToken) return S.adminToken;
+  if(S.participant?.token) return S.participant.token;
+  if(S.adminToken) return S.adminToken;
+  return null;
+}
+async function api(method,path,body,extraHeaders){
+  const opts={method,headers:{}};
+  if(body){opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(body)}
+  const token=getAuthToken();
+  const account=getCurrentAccount();
+  if(token) opts.headers['Authorization']='Bearer '+token;
+  if(account?.username) opts.headers['X-Account-User']=encodeURIComponent(account.username);
+  if(S.activeRole==='manager'&&account?.username&&(account.roles||[]).includes('manager')) opts.headers['X-Manager-User']=encodeURIComponent(account.username);
+  if(extraHeaders) Object.assign(opts.headers,extraHeaders);
+  const res=await fetch(path,opts);
+  const data=await res.json();
+  if(!res.ok) throw new Error(data.error||'请求失败');
+  return data;
+}
+function closeModal(){modalRoot.innerHTML=''}
+function showLoadingModal(title='项目详情'){
+  modalRoot.innerHTML=`
+    <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+      <div class="modal-sheet" style="width:min(760px,100%)">
+        <div class="modal-head">
+          <div>
+            <div class="page-kicker">Detail</div>
+            <h3>${title}</h3>
+          </div>
+          <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <div class="loading"><div class="spinner"></div><p class="mt-8">正在加载活动详情...</p></div>
+      </div>
+    </div>`;
+}
+async function openDashboardDetailModal(eid){
+  showLoadingModal('项目详情');
+  try{
+    const detail=await loadDashboardDetail(eid);
+    modalRoot.innerHTML=`
+      <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+        <div class="modal-sheet" style="width:min(760px,100%)">
+          <div class="modal-head">
+            <div>
+              <div class="page-kicker">Detail</div>
+              <h3>项目详情</h3>
+            </div>
+            <button class="modal-close" onclick="closeModal()">×</button>
+          </div>
+          ${renderDashboardDetail(detail,S.activeRole)}
+        </div>
+      </div>`;
+  }catch(e){
+    modalRoot.innerHTML=`
+      <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+        <div class="modal-sheet">
+          <div class="modal-head">
+            <div>
+              <div class="page-kicker">Detail</div>
+              <h3>项目详情</h3>
+            </div>
+            <button class="modal-close" onclick="closeModal()">×</button>
+          </div>
+          <div class="empty-state">${esc(e.message||'读取失败')}</div>
+        </div>
+      </div>`;
+  }
+}
+function showEventSummaryModal(eventId, mode, eventInfo){
+  const dateLabel=eventInfo?.dateSummary||'还没有候选日期';
+  modalRoot.innerHTML=`
+    <div class="modal-overlay" onclick="if(event.target===this) closeModal()">
+      <div class="modal-sheet">
+        <div class="modal-head">
+          <div>
+            <div class="page-kicker">${mode==='edit'?'Updated':'Created'}</div>
+            <h3>${mode==='edit'?'活动已更新':'活动已创建'}</h3>
+          </div>
+          <button class="modal-close" onclick="closeModal()">×</button>
+        </div>
+        <p class="tm-c">${mode==='edit'?'这里是更新后的活动详情预览。':'这里是新活动的基本信息，你可以直接继续管理或分享。'}</p>
+        <div class="modal-meta">
+          <div class="info-item"><strong>活动名称</strong><span>${esc(eventInfo.title||eventId)}</span></div>
+          <div class="info-item"><strong>活动代码</strong><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace">${eventId}</span></div>
+          <div class="info-item"><strong>发起人</strong><span>${esc(eventInfo.organizer||'-')}</span></div>
+          <div class="info-item"><strong>候选日期</strong><span>${esc(dateLabel)}</span></div>
+        </div>
+        ${eventInfo?.description?`<div class="info-item"><strong>活动说明</strong><span>${esc(eventInfo.description)}</span></div>`:''}
+        <div class="modal-actions">
+          <button class="btn btn-p btn-sm" onclick="closeModal();goAsRole('${S.activeRole==='manager'?'manager':'organizer'}','/event/${eventId}')">查看活动详情</button>
+          <button class="btn btn-g btn-sm" onclick="shareLink('${eventId}')">分享</button>
+          <button class="btn btn-s btn-sm" onclick="closeModal()">留在当前页</button>
+        </div>
+      </div>
+    </div>`;
+}
+function fmtDate(ds){const d=new Date(ds+'T00:00:00');return `${d.getMonth()+1}月${d.getDate()}日 周${WD[d.getDay()]}`}
+function fmtDateCompact(ds){const d=new Date(ds+'T00:00:00');return `${d.getMonth()+1}月${d.getDate()}日`}
+function shortD(ds){const d=new Date(ds+'T00:00:00');return{md:`${d.getMonth()+1}/${d.getDate()}`,dow:`周${WD[d.getDay()]}`}}
+function isWE(ds){const w=new Date(ds+'T00:00:00').getDay();return w===0||w===6}
+function toDS(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function getMon(d){const dt=new Date(d);const day=dt.getDay();dt.setDate(dt.getDate()-((day+6)%7));return dt}
+
+// ===== My Events (localStorage) =====
+function getMyEvents(){try{return JSON.parse(localStorage.getItem('my_events')||'[]')}catch(e){return[]}}
+function hasAdminAccess(eid){return !!localStorage.getItem('admin_'+eid)}
+function hasParticipantAccess(eid){return !!localStorage.getItem('token_'+eid)}
+function getRoleEvents(role){
+  const all=getMyEvents().sort((a,b)=>(b.ts||0)-(a.ts||0));
+  if(role==='manager') return all;
+  return all.filter(ev=>role==='organizer'?hasAdminAccess(ev.id):hasParticipantAccess(ev.id));
+}
+function toTs(v){
+  const n=Date.parse(v||'');
+  return Number.isFinite(n)?n:0;
+}
+function mergeEventLists(primary, fallback){
+  const byId=new Map();
+  [...fallback,...primary].forEach(item=>{
+    if(!item?.id) return;
+    const prev=byId.get(item.id)||{};
+    byId.set(item.id,{
+      ...prev,
+      ...item,
+      ts:Math.max(item.ts||0, prev.ts||0),
+    });
+  });
+  return Array.from(byId.values()).sort((a,b)=>(b.ts||0)-(a.ts||0));
+}
+async function loadRoleEvents(role){
+  const account=getCurrentAccount();
+  const local=getRoleEvents(role);
+  if(!account&&role==='participant'){
+    return loadRoleEvents('manager');
+  }
+  const canQuery=role==='manager'||!!account?.username;
+  if(!canQuery) return local;
+  try{
+    const params=new URLSearchParams({role});
+    if(role!=='manager') params.set('username',account.username);
+    const remote=await api('GET',`/api/dashboard/events?${params.toString()}`);
+    const normalized=remote.map(ev=>({
+      id:ev.id,
+      title:ev.title,
+      name:ev.organizer,
+      owner_username:ev.owner_username||'',
+      is_hidden:!!ev.is_hidden,
+      ts:toTs(ev.joined_at||ev.created_at),
+      created_at:ev.created_at||'',
+      joined_at:ev.joined_at||'',
+    }));
+    return mergeEventLists(normalized, local);
+  }catch(e){
+    return local;
+  }
+}
+async function loadPublicEvents(){
+  try{
+    const remote=await api('GET','/api/dashboard/events/public');
+    return remote.map(ev=>({
+      id:ev.id,
+      title:ev.title,
+      name:ev.organizer,
+      owner_username:ev.owner_username||'',
+      is_hidden:!!ev.is_hidden,
+      ts:toTs(ev.created_at),
+      created_at:ev.created_at||'',
+      joined_at:'',
+    }));
+  }catch(e){
+    return getRoleEvents('manager').filter(ev=>!ev.is_hidden);
+  }
+}
+async function loadDashboardBuckets(role){
+  const account=getCurrentAccount();
+  if(!account){
+    const all=await loadPublicEvents();
+    return {primary:all, secondary:[]};
+  }
+  if(role==='manager'){
+    const all=await loadRoleEvents('manager');
+    return {primary:all, secondary:[]};
+  }
+
+  const primary=await loadRoleEvents(role);
+  let all=primary;
+  try{
+    all=await loadPublicEvents();
+  }catch(e){}
+
+  const primaryIds=new Set(primary.map(ev=>ev.id));
+  const secondary=all.filter(ev=>!ev.is_hidden&&!primaryIds.has(ev.id));
+  return {primary, secondary};
+}
+function cleanupStoredEvent(eid){
+  if(hasAdminAccess(eid)||hasParticipantAccess(eid)) return;
+  const list=getMyEvents().filter(e=>e.id!==eid);
+  localStorage.setItem('my_events',JSON.stringify(list));
+}
+function saveMyEvent(eid,title,name){
+  const list=getMyEvents().filter(e=>e.id!==eid);
+  list.push({id:eid,title:title,name:name,ts:Date.now()});
+  localStorage.setItem('my_events',JSON.stringify(list));
+  updateEventBar();
+}
+function removeMyEvent(eid){
+  localStorage.removeItem('token_'+eid);
+  localStorage.removeItem('admin_'+eid);
+  if(S.dashboardSelection.manager===eid) S.dashboardSelection.manager=null;
+  if(S.dashboardSelection.organizer===eid) S.dashboardSelection.organizer=null;
+  if(S.dashboardSelection.participant===eid) S.dashboardSelection.participant=null;
+  cleanupStoredEvent(eid);
+  updateEventBar();
+}
+function updateEventBar(){
+  const bar=document.getElementById('event-bar');
+  bar.innerHTML='';
+}
+
+// Time helpers
+function timeRows(gran,startH,endH){
+  if(startH==null) startH=S.timeStart;
+  if(endH==null) endH=S.timeEnd;
+  const rows=[];
+  for(let m=startH*60;m<endH*60;m+=gran){
+    rows.push(String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0'));
+  }
+  return rows;
+}
+function timeEnd(t,gran){
+  const [h,m]=t.split(':').map(Number);
+  const em=h*60+m+gran;
+  return String(Math.floor(em/60)).padStart(2,'0')+':'+String(em%60).padStart(2,'0');
+}
+function timeLabelHtml(t, gran){
+  return `<span class="tl-start">${esc(t)}</span><span class="tl-end">${esc(timeEnd(t,gran))}</span>`;
+}
+function fmtRecent(ts){
+  return new Date(ts||Date.now()).toLocaleString('zh-CN',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+}
+function summarizeDateRange(ev){
+  if(!ev?.dates?.length) return '还没有设置候选日期';
+  const first=ev.dates[0]?.date, last=ev.dates[ev.dates.length-1]?.date;
+  if(!first||!last) return '还没有设置候选日期';
+  return first===last?fmtDateCompact(first):`${fmtDateCompact(first)}到${fmtDateCompact(last)}`;
+}
+function summarizeSlotCount(ev){
+  return (ev?.dates||[]).reduce((n,d)=>n+(d.slots?.length||0),0);
+}
+function inferEventGranularity(ev, fallback=S.granularity||60){
+  const firstSlot=ev?.dates?.find(d=>d.slots?.length)?.slots?.[0];
+  if(!firstSlot?.start_time||!firstSlot?.end_time) return fallback;
+  const [sh,sm]=firstSlot.start_time.split(':').map(Number);
+  const [eh,em]=firstSlot.end_time.split(':').map(Number);
+  const diff=(eh*60+em)-(sh*60+sm);
+  return diff>0?diff:fallback;
+}
+async function loadDashboardDetail(eid){
+  const ev=await api('GET',`/api/events/${eid}`);
+  let res=null;
+  try{res=await api('GET',`/api/events/${eid}/results`)}catch(e){}
+  const account=getCurrentAccount();
+  const isOwner=!!account?.username&&ev.owner_username===account.username;
+  return {event:ev, results:res, isAdmin:S.activeRole==='manager'||hasAdminAccess(eid)||isOwner, isJoined:hasParticipantAccess(eid)};
+}
+function renderDashboardDetail(detail, role){
+  if(!detail){
+    return `<div class="detail-panel"><div class="empty-state">从上面的列表里选择一个活动，这里会显示详细内容和下一步操作。</div></div>`;
+  }
+  if(detail.loading){
+    return `<div class="detail-panel"><div class="loading"><div class="spinner"></div><p class="mt-8">正在读取活动详情...</p></div></div>`;
+  }
+  if(detail.error){
+    return `<div class="detail-panel"><div class="empty-state">${esc(detail.error)}</div></div>`;
+  }
+
+  const ev=detail.event, res=detail.results;
+  const total=res?.total_participants??ev.participants?.length??0;
+  const responded=(res?.participants_status||[]).filter(p=>p.has_responded).length;
+  const top=res?.recommendations?.[0];
+  const participantPreview=(ev.participants||[]).slice(0,8);
+  const bestText=top?`${fmtDate(top.date)} ${top.start_time}-${top.end_time}`:'待生成';
+  const description=ev.description?.trim()||'';
+  const baseSummary=description||`${ev.organizer||'-'} 发起 · ${summarizeDateRange(ev)||'时间待定'}`;
+  const factChips=`
+    <div class="detail-facts">
+      <span class="detail-fact">日期：${esc(summarizeDateRange(ev)||'待定')}</span>
+      <span class="detail-fact">参与投票者：${total} 人</span>
+      <span class="detail-fact">已填：${responded} 人</span>
+      <span class="detail-fact">共同有空：${esc(bestText)}</span>
+      ${ev.is_hidden?'<span class="detail-fact">状态：已下架</span>':''}
+    </div>`;
+
+  if(role==='organizer'||role==='manager'){
+    const canEditThis=role==='manager' || !ev.is_hidden;
+    const chips=participantPreview.length
+      ? participantPreview.map(p=>`<span class="participant-chip"><span class="sdot ${p.name?'ok':'no'}"></span>${esc(p.name||p.username||'未命名')}</span>`).join('')
+      : '<p class="tm-c">目前还没有参与者。</p>';
+    return `
+      <div class="detail-panel">
+        <div class="detail-top">
+          <div>
+            <div class="detail-title">${esc(ev.title)}</div>
+            <div class="detail-summary">发起人：${esc(ev.organizer||'-')} · ${esc(summarizeDateRange(ev)||'时间待定')} · ${esc(description||'点击下方按钮继续管理这个活动。')}</div>
+          </div>
+          <div class="badge-row">
+            <span class="mini-badge org">${role==='manager'?'全局管理':'可编辑'}</span>
+            ${ev.is_hidden?'<span class="mini-badge" style="background:#fee2e2;color:#991b1b">已下架</span>':''}
+          </div>
+        </div>
+        ${factChips}
+        <div class="detail-block">
+          <div class="activity-actions">
+            ${canEditThis?`<button class="btn btn-p btn-sm" onclick="${role==='manager' ? `goAsRole('manager','/event/${ev.id}/edit')` : `nav('/event/${ev.id}/edit')`}">编辑活动</button>`:''}
+            <button class="btn btn-g btn-sm" onclick="nav('/event/${ev.id}/results')">结果</button>
+            ${!ev.is_hidden?`<button class="btn btn-o btn-sm" onclick="goVote('${ev.id}')">参与</button>
+            <button class="btn btn-s btn-sm" onclick="shareLink('${ev.id}')">分享</button>`:''}
+            ${role==='manager'?`<button class="btn btn-o btn-sm" onclick="toggleEventHidden('${ev.id}',${ev.is_hidden?'false':'true'})">${ev.is_hidden?'重新上架':'下架项目'}</button>
+            <button class="btn btn-o btn-sm" onclick="deleteOrganizerEvent('${ev.id}')">删除活动</button>`:''}
+          </div>
+        </div>
+        <div class="detail-block">
+          <h3>参与投票者</h3>
+          <div class="participant-peek">${chips}</div>
+        </div>
+      </div>`;
+  }
+
+  const joinState=ev.is_hidden&&detail.isJoined
+    ? '这个项目已下架。你仍然可以查看信息和结果，但不能再重新投票。'
+    : detail.isJoined
+    ? '你已经加入，可以继续投票。'
+    : '这是你还没有参与的候选活动，点击参与后就能进入这个活动。';
+  const participantAction=ev.is_hidden&&detail.isJoined
+    ? ''
+    : detail.isJoined
+    ? `<button class="btn btn-g btn-sm" onclick="goVote('${ev.id}')">重投</button>`
+    : `<button class="btn btn-g btn-sm" onclick="goVote('${ev.id}')">参与</button>`;
+  const stateBadge=ev.is_hidden?'已下架':detail.isJoined?'可投票':'待登录';
+  return `
+    <div class="detail-panel">
+      <div class="detail-top">
+        <div>
+          <div class="detail-title">${esc(ev.title)}</div>
+          <div class="detail-summary">发起人：${esc(ev.organizer||'-')} · ${esc(summarizeDateRange(ev)||'时间待定')} · ${esc(joinState)}</div>
+        </div>
+        <div class="badge-row">
+          <span class="mini-badge part">${stateBadge}</span>
+        </div>
+      </div>
+      ${factChips}
+      <div class="detail-block">
+        <div class="activity-actions">
+          ${participantAction}
+          <button class="btn btn-p btn-sm" onclick="nav('/event/${ev.id}/results')">结果</button>
+          ${!ev.is_hidden?`<button class="btn btn-s btn-sm" onclick="shareLink('${ev.id}')">分享</button>`:''}
+          ${detail.isJoined?`<button class="btn btn-o btn-sm" onclick="leaveParticipantEvent('${ev.id}')">退出</button>`:''}
+        </div>
+      </div>
+      ${description?`<div class="detail-block"><h3>活动说明</h3><div class="detail-summary">${esc(description)}</div></div>`:''}
+    </div>`;
+}
+
+// ===== Home =====
+async function renderHome(){
+  S.participant=null;
+  const account=getCurrentAccount();
+  const role=S.activeRole;
+  const isOrg=role==='organizer';
+  const isManager=role==='manager';
+  const isParticipant=role==='participant';
+  const {primary, secondary}=await loadDashboardBuckets(role);
+  let ownedEvents=[];
+  if(isParticipant&&account&&hasRoleAccess('organizer')){
+    try{
+      ownedEvents=await loadRoleEvents('organizer');
+    }catch(e){}
+  }
+  const joinedEvents=primary;
+  const secondaryEvents=secondary;
+  const roleEvents=isParticipant?[...joinedEvents,...ownedEvents,...secondaryEvents]:[...primary,...secondary];
+
+  // Fetch details for current role events
+  const allIds=[...new Set(roleEvents.map(e=>e.id))];
+  const details={};
+  await Promise.allSettled(allIds.map(async eid=>{
+    try{details[eid]=await api('GET',`/api/events/${eid}`)}catch(e){details[eid]=null}
+  }));
+
+  function eventRow(ev, section){
+    const d=details[ev.id];
+    const pCount=d?.participants?.length||0;
+    const dateRange=d?summarizeDateRange(d):'';
+    const slotCount=d?summarizeSlotCount(d):0;
+    const descriptionText=(d?.description||ev.description||'').trim();
+    const organizerText=`发起人：${d?.organizer||ev.organizer||'-'}`;
+    const fallbackSummary=[dateRange, pCount?`${pCount} 位参与投票者`:null, slotCount?`${slotCount} 个时段`:null].filter(Boolean).join(' · ');
+    const detailText=[organizerText, descriptionText||d?.location||fallbackSummary].filter(Boolean).join(' · ');
+    const isPrimary=section==='primary';
+    const isOwnedSection=section==='owned';
+    const joined=isParticipant?(isPrimary||hasParticipantAccess(ev.id)):hasParticipantAccess(ev.id);
+    const canEdit=!isParticipant&&!!account&&!ev.is_hidden&&(isManager||ev.owner_username===account.username||(isOrg&&isPrimary&&hasAdminAccess(ev.id)));
+    const rowClass=!isManager&&!isPrimary&&!isOwnedSection?' dim':'';
+    const titleHtml=`${esc(ev.title||ev.id)}${ev.is_hidden?`<span class="row-hidden">已下架</span>`:''}${dateRange?` <span class="row-inline-meta">${esc(dateRange)}</span>`:''}`;
+
+    const actions=!account
+      ? `<button class="btn btn-g btn-sm" onclick="event.stopPropagation();goVote('${ev.id}')">参会</button>
+         <button class="btn btn-s btn-sm" onclick="event.stopPropagation();shareLink('${ev.id}')">分享</button>`
+      : isManager
+      ? `<button class="btn btn-p btn-sm" onclick="event.stopPropagation();goAsRole('manager','/event/${ev.id}/edit')">编辑</button>
+         ${!ev.is_hidden?`<button class="btn btn-g btn-sm" onclick="event.stopPropagation();goVote('${ev.id}')">参与</button>
+         <button class="btn btn-s btn-sm" onclick="event.stopPropagation();shareLink('${ev.id}')">分享</button>`:''}
+         <button class="btn btn-o btn-sm" onclick="event.stopPropagation();toggleEventHidden('${ev.id}',${ev.is_hidden?'false':'true'})">${ev.is_hidden?'重新上架':'下架'}</button>
+         <button class="btn btn-o btn-sm" onclick="event.stopPropagation();deleteOrganizerEvent('${ev.id}')">删除</button>`
+      : isOrg
+      ? `${canEdit?`<button class="btn btn-p btn-sm" onclick="event.stopPropagation();nav('/event/${ev.id}/edit')">编辑</button>`:''}
+         <button class="btn btn-g btn-sm" onclick="event.stopPropagation();goVote('${ev.id}')">参与</button>
+         <button class="btn btn-p btn-sm" onclick="event.stopPropagation();nav('/event/${ev.id}/results')">结果</button>
+         <button class="btn btn-s btn-sm" onclick="event.stopPropagation();shareLink('${ev.id}')">分享</button>
+         ${canEdit?`<button class="btn btn-o btn-sm" onclick="event.stopPropagation();deleteOrganizerEvent('${ev.id}')">删除</button>`:''}`
+      : `${canEdit?`<button class="btn btn-p btn-sm" onclick="event.stopPropagation();nav('/event/${ev.id}/edit')">编辑</button>`:''}
+         ${joined&&!ev.is_hidden?`<button class="btn btn-g btn-sm" onclick="event.stopPropagation();goVote('${ev.id}')">重投</button>`:(!joined?`<button class="btn btn-g btn-sm" onclick="event.stopPropagation();goVote('${ev.id}')">参与</button>`:'')}
+         <button class="btn btn-p btn-sm" onclick="event.stopPropagation();nav('/event/${ev.id}/results')">结果</button>
+         ${!ev.is_hidden?`<button class="btn btn-s btn-sm" onclick="event.stopPropagation();shareLink('${ev.id}')">分享</button>`:''}
+         ${joined?`<button class="btn btn-o btn-sm" onclick="event.stopPropagation();leaveParticipantEvent('${ev.id}')">退出</button>`:''}
+         `;
+    const rowClick=`selectDashboardEvent('${ev.id}')`;
+
+    return `<div class="list-row${rowClass}" onclick="${rowClick}">
+      <div class="row-main">
+        <div class="row-title">${titleHtml}</div>
+        ${detailText?`<div class="row-sub">${esc(detailText)}</div>`:''}
+      </div>
+      <div class="row-side">${actions}</div>
+    </div>`;
+  }
+
+  function renderSection(title, items, section, emptyText){
+    const heading=title?`<h2>${title}</h2>`:'';
+    if(!items.length) return `<div class="card">${heading}<div class="empty-state">${emptyText}</div></div>`;
+    return `<div class="card">${heading}<div class="stack-list">${items.map(ev=>eventRow(ev,section)).join('')}</div></div>`;
+  }
+
+  const inlineStat=!account
+    ? `未登录状态下可以浏览全部活动信息，登录后再参会`
+    : isManager
+    ? `共 ${roleEvents.length} 个活动，含 ${roleEvents.filter(ev=>ev.is_hidden).length} 个已下架项目`
+    : ``;
+
+  if(!isParticipant){
+    app.innerHTML=`<div class="card entry-button-card">${
+      !account
+        ? `<button class="btn btn-g" onclick="openLoginEntry()">登录后参会</button>`
+        : isManager
+        ? `<div class="btn-row"><button class="btn btn-p" onclick="goAsRole('manager','/create')">发起新活动</button><button class="btn btn-g" onclick="goAsRole('manager','/join')">输入活动号码加入活动</button></div>${inlineStat?`<p class="tm-c mt-8">${inlineStat}</p>`:''}`
+        : `<button class="btn btn-p" onclick="nav('/create')">发起新的活动</button>`
+    }</div>`;
+  }else{
+    app.innerHTML='';
+  }
+
+  if(!account||isManager){
+    app.innerHTML+=renderSection('全部活动', primary, 'primary', '当前还没有任何活动');
+  }else if(isOrg){
+    app.innerHTML+=renderSection('', primary, 'primary', '还没有发起过活动，点击「发起新的活动」开始');
+    app.innerHTML+=renderSection('其他活动', secondary, 'secondary', '目前没有其他活动');
+  }else{
+    app.innerHTML+=`
+      <div class="card entry-button-card">
+        <button class="btn btn-g" onclick="nav('/join')">输入活动号码加入活动</button>
+      </div>`;
+    app.innerHTML+=renderSection('我参与的活动', joinedEvents, 'primary', '你还没有参与任何活动');
+    app.innerHTML+=renderSection('其他活动', secondaryEvents, 'secondary', '目前没有其他活动');
+  }
+}
+
+// ===== Account =====
+function getVisibleAccounts(){
+  return getStoredUsers().slice().sort((a,b)=>{
+    const seedDiff=(isSeededUser(b)?1:0)-(isSeededUser(a)?1:0);
+    if(seedDiff) return seedDiff;
+    return a.username.localeCompare(b.username,'zh-CN');
+  });
+}
+function buildAccountListHtml(users){
+  return users.map(u=>`<div class="seed-item">
+    <div>
+      <strong>${esc(u.name)}</strong>${isSeededUser(u)?'<span class="mini-badge org" style="margin-left:6px">内置</span>':''}
+      <div class="tm-c">${esc(u.username)}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div class="tm-c">${esc(formatRoleNames(u.roles))}</div>
+      <button class="btn btn-s btn-sm" onclick="quickUseAccount('${u.username}')">直接切换</button>
+    </div>
+  </div>`).join('');
+}
+function buildRoleManagerHtml(users){
+  return users.map(u=>{
+    const roles=normalizeRoles(u.roles);
+    return `<div class="seed-item">
+      <div>
+        <strong>${esc(u.name)}</strong>
+        <div class="tm-c">${esc(u.username)}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end">
+        ${ROLE_ORDER.map(role=>{
+          const checked=roles.includes(role)?'checked':'';
+          const locked=role==='participant'&&roles.includes('organizer');
+          const disabled=locked?'disabled':'';
+          const hint=locked?' title="发起人自动拥有参与人权限"':'';
+          return `<label class="tm-c" style="display:inline-flex;align-items:center;gap:4px"${hint}>
+            <input type="checkbox" id="role_${u.username}_${role}" ${checked} ${disabled}>
+            <span>${roleName(role)}</span>
+          </label>`;
+        }).join('')}
+        <button class="btn btn-p btn-sm" onclick="saveManagedRoles('${u.username}')">保存角色</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function renderCurrentAccountRoute(mode='login'){
+  if(getRoute()==='/account/manage') renderAccountManagePage();
+  else if(getRoute()==='/account') renderAccountPage(mode);
+  else route();
+}
+function renderAccountPage(mode='login'){
+  syncAccountsFromServer();
+  const account=getCurrentAccount();
+  const users=getVisibleAccounts();
+  const otherUsers=account?users.filter(u=>u.username!==account.username):users;
+  const accountListHtml=buildAccountListHtml(otherUsers);
+  const quickSwitchHtml=canUseQuickSwitch(account)
+    ? `<div class="card">
+        <h2>系统内其他账号的快速切换</h2>
+        <p class="tm-c mb-16">下面列的是当前系统里除你自己之外的其他账号，点击即可直接切换。</p>
+        ${accountListHtml?`<div class="seed-list">${accountListHtml}</div>`:'<div class="empty-state">目前没有其他账号可以切换。</div>'}
+      </div>`
+    : '';
+  app.innerHTML=`
+    ${account?`<div class="card"><h2>当前登录账号</h2><div class="info-list">
+      <div class="info-item"><strong>用户名</strong><span>${esc(account.username)}</span></div>
+      <div class="info-item"><strong>显示名</strong><span>${esc(account.name)}</span></div>
+      <div class="info-item"><strong>角色</strong><span>${esc(formatRoleNames(account.roles))}</span></div>
+    </div><div class="action-strip"><button class="btn btn-o btn-sm" onclick="openAccountProfileEditor()">更新账户资料</button>${canUseQuickSwitch(account)?`<button class="btn btn-p btn-sm" onclick="nav('/account/manage')">用户管理</button>`:''}<button class="btn btn-s btn-sm" onclick="logoutSession()">退出登录</button><button class="btn btn-p btn-sm" onclick="nav('/')">返回首页</button></div></div>`:''}
+    <div class="card">
+      <h2>${account?'更换账号登录 / 注册新账号':'登录 / 注册新账号'}</h2>
+      <p class="tm-c mb-16">${account?'当前账号不会自动被覆盖，只有你主动登录或注册后才会切换。':'这里是独立的登录 / 注册页面，不会跳到会议页面。'}</p>
+      <div class="modal-tabs">
+        <button class="modal-tab ${mode==='login'?'active':''}" onclick="renderAccountPage('login')">登录</button>
+        <button class="modal-tab ${mode==='register'?'active':''}" onclick="renderAccountPage('register')">注册</button>
+      </div>
+      ${mode==='login'?`
+        <div class="fg"><label>用户名</label><input id="acc-u" placeholder="如 zhangsan"></div>
+        <div class="fg"><label>密码</label><input id="acc-p" type="password" placeholder="输入密码"></div>
+        <button class="btn btn-p" onclick="doAccountLogin()">登录</button>
+      `:`
+        <div class="fg"><label>用户名</label><input id="reg-u" placeholder="自定义登录名"></div>
+        <div class="fg"><label>显示名</label><input id="reg-n" placeholder="如 张三"></div>
+        <div class="fg"><label>密码</label><input id="reg-p" type="password" placeholder="至少 4 位"></div>
+        <p class="tm-c mb-16">新注册账号默认拥有“参与人”角色。</p>
+        <button class="btn btn-p" onclick="doAccountRegister()">注册</button>
+      `}
+    </div>
+    ${quickSwitchHtml}`;
+}
+
+function renderAccountManagePage(){
+  syncAccountsFromServer();
+  const account=getCurrentAccount();
+  if(!canUseQuickSwitch(account)){nav('/account');return}
+  const users=getVisibleAccounts();
+  app.innerHTML=`
+    <div class="card">
+      <h2>用户管理</h2>
+      <p class="tm-c mb-16">这里单独负责账号角色管理。账户切换和登录注册仍然保留在账户页。</p>
+      <div class="action-strip">
+        <button class="btn btn-p btn-sm" onclick="nav('/account')">返回账户页</button>
+        <button class="btn btn-s btn-sm" onclick="nav('/')">返回首页</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>账号角色管理</h2>
+      <p class="tm-c mb-16">管理者可以直接修改每个账号的角色。发起人会自动拥有参与人权限。</p>
+      <div class="seed-list">${buildRoleManagerHtml(users)}</div>
+    </div>`;
+}
+
+async function doAccountLogin(){
+  const username=(document.getElementById('acc-u')?.value||'').trim();
+  const password=document.getElementById('acc-p')?.value||'';
+  let user=getStoredUsers().find(u=>u.username===username&&u.password===password);
+  if(!user){
+    try{
+      user=await api('POST','/api/accounts/login',{username,password});
+      upsertStoredUser(user);
+    }catch(e){
+      toast(e.message||'用户名或密码错误');
+      return;
+    }
+  }
+  setCurrentAccount(user);
+  updateRoleBar();
+  toast(`已登录：${user.name}`);
+  const pending=getPendingEventId();
+  if(pending) nav(`/event/${pending}`);
+  else nav('/');
+}
+
+function quickUseAccount(username){
+  if(!canUseQuickSwitch()){toast('只有管理者可以快速切换账号');return}
+  const user=getStoredUsers().find(u=>u.username===username);
+  if(!user){toast('账号不存在');return}
+  setCurrentAccount(user);
+  updateRoleBar();
+  toast(`已切换到：${user.name}`);
+  const pending=getPendingEventId();
+  if(pending) nav(`/event/${pending}`);
+  else nav('/');
+}
+
+async function syncRegisteredAccount(user){
+  try{
+    await api('POST','/api/accounts/register',{username:user.username,name:user.name,password:user.password,roles:user.roles});
+  }catch(e){
+    if(/fetch should not be called|Failed to fetch|NetworkError|Load failed/i.test(e.message||'')) return;
+    throw e;
+  }
+}
+async function saveAccountProfile(){
+  const account=getCurrentAccount();
+  if(!account){toast('请先登录');return}
+  const username=(document.getElementById('profile-u')?.value||'').trim();
+  const name=(document.getElementById('profile-n')?.value||'').trim();
+  const password=document.getElementById('profile-p')?.value||'';
+  if(!username||!name||!password){toast('请填写完整信息');return}
+  if(password.length<3){toast('密码至少 3 位');return}
+  const users=getStoredUsers();
+  if(username!==account.username&&users.some(u=>u.username===username)){toast('用户名已存在');return}
+  try{
+    const result=await api('PUT',`/api/accounts/${encodeURIComponent(account.username)}/profile`,{
+      username,
+      name,
+      password
+    });
+    const next={...account,username:result.username||username,name:result.name||name,password,roles:normalizeRoles(result.roles||account.roles),seed_key:account.seed_key||''};
+    const nextUsers=users.map(u=>u.username===account.username?next:u);
+    saveStoredUsers(nextUsers);
+    setCurrentAccount(next,true);
+    updateRoleBar();
+    closeModal();
+    toast('账户资料已更新');
+    renderCurrentAccountRoute();
+  }catch(e){
+    toast(e.message||'保存失败');
+  }
+}
+function getManagedRoleSelection(username){
+  const roles=ROLE_ORDER.filter(role=>{
+    const input=document.getElementById(`role_${username}_${role}`);
+    return !!input?.checked;
+  });
+  return normalizeRoles(roles);
+}
+async function saveManagedRoles(username){
+  const users=getStoredUsers();
+  const idx=users.findIndex(u=>u.username===username);
+  if(idx<0){toast('账号不存在');return}
+  const user=users[idx];
+  const roles=getManagedRoleSelection(username);
+  if(roles.length===0){toast('至少保留一个角色');return}
+  const managerCount=users.filter(u=>normalizeRoles(u.roles).includes('manager')).length;
+  if(normalizeRoles(user.roles).includes('manager')&&!roles.includes('manager')&&managerCount<=1){
+    toast('至少保留一个管理者账号');
+    return;
+  }
+  try{
+    await api('PUT',`/api/accounts/${encodeURIComponent(username)}/roles`,{
+      name:user.name,
+      password:user.password,
+      roles
+    });
+    const next={...user,roles};
+    users[idx]=next;
+    saveStoredUsers(users);
+    if(getCurrentAccount()?.username===username){
+      setCurrentAccount(next);
+      updateRoleBar();
+    }
+    toast(`已更新 ${user.name} 的角色`);
+    renderCurrentAccountRoute();
+  }catch(e){
+    toast(e.message||'保存失败');
+  }
+}
+
+async function doAccountRegister(){
+  const username=(document.getElementById('reg-u')?.value||'').trim();
+  const name=(document.getElementById('reg-n')?.value||'').trim();
+  const password=document.getElementById('reg-p')?.value||'';
+  if(!username||!name||!password){toast('请填写完整信息');return}
+  if(password.length<4){toast('密码至少 4 位');return}
+  const users=getStoredUsers();
+  if(users.some(u=>u.username===username)){toast('用户名已存在');return}
+  const user={username,name,password,roles:['participant']};
+  try{
+    await syncRegisteredAccount(user);
+    upsertStoredUser(user);
+    setCurrentAccount(user);
+    updateRoleBar();
+    toast(`注册成功，已进入系统：${name}`);
+    const pending=getPendingEventId();
+    if(pending) nav(`/event/${pending}`);
+    else nav('/');
+  }catch(e){
+    toast(e.message||'注册失败');
+  }
+}
+
+// ===== Join page =====
+function renderJoinPage(){
+  app.innerHTML=`
+    <div class="card">
+      <h2>参与活动</h2><p class="tm-c mb-16">输入发起人分享的活动代码</p>
+      <div class="fg"><label>活动代码</label>
+        <div class="join-row">
+          <input id="jc" placeholder="如: abc12345" maxlength="8" style="font-family:monospace;font-size:1.15rem;letter-spacing:.1em;text-align:center">
+          <button class="btn btn-p btn-sm" onclick="goJoin()">进入</button>
+        </div>
+      </div>
+      <button class="btn btn-s mt-8" onclick="nav('/')">← 返回</button>
+    </div>`;
+  document.getElementById('jc').addEventListener('keydown',e=>{if(e.key==='Enter')goJoin()});
+}
+function goJoin(){const c=document.getElementById('jc').value.trim().toLowerCase();if(!c||c.length<4){toast('请输入有效的活动代码');return}nav('/event/'+c)}
+
+// ===== Create / Edit (unified, two stages) =====
+async function renderCreateEdit(eventId){
+  if(eventId){
+    const at=localStorage.getItem('admin_'+eventId);
+    const account=getCurrentAccount();
+    const isManager=S.activeRole==='manager'&&hasRoleAccess('manager');
+    try{
+      const ev=await api('GET',`/api/events/${eventId}`);
+      const isOwner=!!account?.username&&ev.owner_username===account.username;
+      if(!at&&!isManager&&!isOwner){toast('无编辑权限');nav('/event/'+eventId);return}
+      if(ev.is_hidden&&!isManager){toast('该项目已被管理员下架，发起人只能查看，不能再修改');nav('/event/'+eventId);return}
+      S.adminToken=at||null;
+      S.title=ev.title;S.organizer=ev.organizer;S.eventType=ev.event_type;
+      S.location=ev.location||'';S.description=ev.description||'';
+      S.editingEventId=eventId;
+      S.orgSlots=new Set();S.pickedDates=new Set();
+      ev.dates.forEach(d=>{
+        S.pickedDates.add(d.date);
+        d.slots.forEach(sl=>S.orgSlots.add(d.date+'_'+sl.start_time));
+      });
+      const firstSlotDay=ev.dates.find(d=>d.slots.length>0);
+      if(firstSlotDay){
+        const s0=firstSlotDay.slots[0];
+        const [sh,sm]=s0.start_time.split(':').map(Number);
+        const [eh,em]=s0.end_time.split(':').map(Number);
+        S.granularity=(eh*60+em)-(sh*60+sm);
+      }
+      if(ev.dates.length>0){
+        const f=new Date(ev.dates[0].date+'T00:00:00');
+        const l=new Date(ev.dates[ev.dates.length-1].date+'T00:00:00');
+        S.rangeStart=f;
+        S.rangeDays=Math.round((l-f)/86400000)+1;
+      }
+    }catch(e){toast(e.message);nav('/');return}
+  }else{
+    S.editingEventId=null;S.adminToken=null;
+    // Auto-fill defaults for new event (testing convenience)
+    if(!S.title) S.title='论文讨论会';
+    if(!S.organizer) S.organizer='林老师';
+    // Seed default exclusion rules (teacher's fixed schedule)
+    if(S.excludeRules.length===0){
+      S.excludeRules=[
+        {text:'周二 08:15-09:35', active:true, slots:[]},
+        {text:'周五 08:15-16:50', active:true, slots:[]},
+        {text:'周二 12:00-16:00', active:true, slots:[]},
+      ];
+    }
+  }
+  // Recompute excluded slots from rules against current dates
+  recomputeExcluded();
+  buildCreateEditPage(eventId);
+}
+
+function saveFormFields(){
+  const t=document.getElementById('f-t');if(t)S.title=t.value;
+  const o=document.getElementById('f-o');if(o)S.organizer=o.value;
+  const tp=document.getElementById('f-tp');if(tp)S.eventType=tp.value;
+  const l=document.getElementById('f-l');if(l)S.location=l.value;
+  const d=document.getElementById('f-d');if(d)S.description=d.value;
+}
+
+function rebuild(){saveFormFields();recomputeExcluded();buildCreateEditPage(S.editingEventId)}
+
+function buildCreateEditPage(eventId){
+  const isEdit=!!eventId;
+  const today=new Date();today.setHours(0,0,0,0);
+  if(!S.rangeStart) S.rangeStart=new Date(today);
+
+  // === Date range ===
+  const rangeDates=[];
+  for(let i=0;i<S.rangeDays;i++){
+    const d=new Date(S.rangeStart);d.setDate(d.getDate()+i);
+    rangeDates.push(d);
+  }
+  const rangeSet=new Set(rangeDates.map(d=>toDS(d)));
+  const rangeStartStr=toDS(S.rangeStart);
+  const rangeEndD=new Date(S.rangeStart);rangeEndD.setDate(rangeEndD.getDate()+S.rangeDays-1);
+  const rangeEndStr=toDS(rangeEndD);
+
+  // === Stage 1: date calendar (7 columns per row for better mobile layout) ===
+  const todayStr=toDS(today);
+  let calHtml=`<div class="date-picker-grid">`;
+  rangeDates.forEach(d=>{
+    const ds=toDS(d);
+    const sd=shortD(ds);
+    const we=isWE(ds)?' we':'';
+    const past=d<today;
+    if(past){
+      calHtml+=`<div class="date-pick-cell${we} past"><div class="dow">${sd.dow}</div>${sd.md}</div>`;
+    }else{
+      const isPicked=S.pickedDates.has(ds);
+      const isTod=ds===todayStr;
+      const isWeekend=isWE(ds);
+      let bg='';
+      if(isPicked) bg='#DCFCE7';       // light green = picked
+      else if(isTod) bg='#DBEAFE';     // light blue = today
+      else if(isWeekend) bg='#FFF7ED'; // light orange = weekend
+      const bc=isPicked?'#22C55E':'transparent';
+      calHtml+=`<div class="date-pick-cell${we}${isPicked?' picked':''} clickable" data-pick="${ds}" style="border-color:${bc};background:${bg}">`
+        +`<div class="dow">${sd.dow}</div>${sd.md}</div>`;
+    }
+  });
+  calHtml+=`</div>`;
+
+  // === Stage 2: time grid (continuous range, unpicked dates shown as gray) ===
+  const picked=Array.from(S.pickedDates).sort();
+  const times=timeRows(S.granularity, S.timeStart, S.timeEnd);
+  // Build display columns: continuous from first to last picked date (unless hideUnpicked)
+  let displayDates=[];
+  if(picked.length>0){
+    if(S.hideUnpicked){
+      displayDates=picked.slice();
+    }else{
+      const first=new Date(picked[0]+'T00:00:00');
+      const last=new Date(picked[picked.length-1]+'T00:00:00');
+      for(let d=new Date(first);d<=last;d.setDate(d.getDate()+1)){
+        displayDates.push(toDS(d));
+      }
+    }
+  }
+  const pickedSet=S.pickedDates;
+  let gridHtml='';
+  if(displayDates.length>0){
+    gridHtml+=`<div class="org-grid-wrap"><div class="org-grid" style="grid-template-columns:50px repeat(${displayDates.length},1fr)">`;
+    gridHtml+=`<div class="corner"></div>`;
+    displayDates.forEach(ds=>{
+      const sd=shortD(ds);const we=isWE(ds)?' we':'';
+      const unpicked=!pickedSet.has(ds);
+      gridHtml+=`<div class="dh${we}" style="${unpicked?'background:#E2E8F0;color:#94A3B8':''}">`
+        +`<div class="dow">${sd.dow}</div>${sd.md}</div>`;
+    });
+    times.forEach((t,ti)=>{
+      gridHtml+=`<div class="tl">${timeLabelHtml(t,S.granularity)}</div>`;
+      displayDates.forEach(ds=>{
+        const unpicked=!pickedSet.has(ds);
+        if(unpicked){
+          gridHtml+=`<div class="org-cell" style="background:#E2E8F0;cursor:default"></div>`;
+        }else{
+          const key=ds+'_'+t;
+          const isExcl=S.excludedSlots.has(key);
+          if(isExcl){
+            gridHtml+=`<div class="org-cell excluded"></div>`;
+          }else{
+            const sel=S.orgSlots.has(key)?' sel':'';
+            const we=isWE(ds)?' we':'';
+            gridHtml+=`<div class="org-cell${we}${sel}" data-date="${ds}" data-time="${t}" data-idx="${ti}"></div>`;
+          }
+        }
+      });
+    });
+    gridHtml+=`</div></div>`;
+  }
+
+  // Hour options for time range selectors
+  let hourOpts='';
+  for(let h=0;h<=23;h++){
+    const label=String(h).padStart(2,'0')+':00';
+    hourOpts+=`<option value="${h}">${label}</option>`;
+  }
+
+  let html=`
+    <div class="card">
+      <h2>${isEdit?'编辑活动':'创建活动'}</h2>
+      <div class="fr">
+        <div class="fg"><label>活动名称 *</label><input id="f-t" value="${esc(S.title)}" placeholder="如：论文讨论会"></div>
+        <div class="fg"><label>发起人 *</label><input id="f-o" value="${esc(S.organizer)}" placeholder="你的姓名"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>类型</label>
+          <select id="f-tp"><option value="online"${S.eventType==='online'?' selected':''}>线上</option><option value="in_person"${S.eventType==='in_person'?' selected':''}>线下</option></select>
+        </div>
+        <div class="fg"><label>地点/链接</label><input id="f-l" value="${esc(S.location)}" placeholder="可选"></div>
+      </div>
+      <div class="fg"><label>备注</label><textarea id="f-d" placeholder="可选">${esc(S.description)}</textarea></div>
+    </div>
+
+    <div class="card">
+      <h2>第一步：选择日期</h2>
+      <p class="tm-c mb-8">点击选中候选日期（蓝色=今天，绿色=已选，橙色=周末，灰色=不可选）</p>
+      <div class="range-bar">
+        <label>起始</label>
+        <input type="date" id="r-start" value="${rangeStartStr}" min="${toDS(today)}" onchange="onRangeChange()">
+        <label>结束</label>
+        <input type="date" id="r-end" value="${rangeEndStr}" min="${rangeStartStr}" onchange="onRangeChange()">
+        <div class="dur-btns">
+          <span class="dur-btn${S.rangeDays===7?' active':''}" onclick="setDur(7)">7天</span>
+          <span class="dur-btn${S.rangeDays===10?' active':''}" onclick="setDur(10)">10天</span>
+          <span class="dur-btn${S.rangeDays===14?' active':''}" onclick="setDur(14)">14天</span>
+          <span class="dur-btn${S.rangeDays===30?' active':''}" onclick="setDur(30)">30天</span>
+        </div>
+      </div>
+      ${calHtml}
+      <p class="tm-c mt-8 tc">已选 <strong style="color:#16A34A">${picked.length}</strong> 天</p>
+    </div>
+
+    <div class="card" ${picked.length===0?'style="opacity:.5;pointer-events:none"':''}>
+      <h2>第二步：选择时间段</h2>
+      <p class="tm-c mb-8">${picked.length>0?'在下方拖拽选择候选时段，点击已选区域取消':'请先在上方选择至少一个日期'}</p>
+      <div class="range-bar">
+        <label>可见时间</label>
+        <select id="ts-start" onchange="onTimeRangeChange()" style="width:90px;padding:6px 4px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:.85rem">${hourOpts.replace(`value="${S.timeStart}"`,`value="${S.timeStart}" selected`)}</select>
+        <label>至</label>
+        <select id="ts-end" onchange="onTimeRangeChange()" style="width:90px;padding:6px 4px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:.85rem">${hourOpts.replace(`value="${S.timeEnd}"`,`value="${S.timeEnd}" selected`)}</select>
+        <div class="gran-row" style="margin:0">
+          <label><input type="radio" name="gran" value="30"${S.granularity===30?' checked':''} onchange="changeGran(30)"> 30分</label>
+          <label><input type="radio" name="gran" value="60"${S.granularity===60?' checked':''} onchange="changeGran(60)"> 60分</label>
+        </div>
+      </div>
+      ${picked.length>0?`
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:.82rem;color:#64748B;cursor:pointer;user-select:none">
+          <input type="checkbox" id="cb-hide" ${S.hideUnpicked?'checked':''} onchange="toggleHideUnpicked()" style="width:16px;height:16px;accent-color:#3B82F6">
+          仅显示已选日期（隐藏未选中的日期列）
+        </label>
+      </div>
+      <div style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:10px 12px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+          <span style="font-size:.82rem;font-weight:600;color:#991B1B">排除时间段</span>
+          <span style="font-size:.68rem;color:#94A3B8">（灰色=已排除，蓝色=候选时间）</span>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:6px">
+          <input id="ex-input" placeholder="如: 周二 8:00-10:00 或 3月15日 14:00-16:00" style="flex:1;padding:6px 8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:.82rem">
+          <button class="btn btn-sm" style="background:#DC2626;color:#fff;width:auto;padding:5px 10px;font-size:.78rem" onclick="addManualRule()">添加</button>
+          <button class="btn btn-sm" id="ex-ai-btn" style="background:#7C3AED;color:#fff;width:auto;padding:5px 10px;font-size:.78rem" onclick="aiParseExclusion(document.getElementById('ex-input').value.trim())">AI 解析</button>
+        </div>
+        ${S.excludeRules.length>0?`<div style="display:flex;flex-direction:column;gap:4px">${S.excludeRules.map((r,i)=>
+          `<div style="display:flex;align-items:center;gap:6px;font-size:.78rem">
+            <input type="checkbox" ${r.active?'checked':''} onchange="toggleRule(${i})" style="width:14px;height:14px;accent-color:#DC2626">
+            <span style="flex:1;color:${r.active?'#991B1B':'#94A3B8'};${r.active?'':'text-decoration:line-through'}">${esc(r.text)}<span style="color:#94A3B8;margin-left:4px">(${r.slots.length}格)</span></span>
+            <span style="cursor:pointer;color:#94A3B8;font-size:.72rem" onclick="removeRule(${i})">×</span>
+          </div>`
+        ).join('')}</div>`:'<p style="font-size:.72rem;color:#94A3B8;margin:0">暂无排除规则。输入描述添加，如「每周三 8:00-12:00」「3月20日 9:00-11:00」</p>'}
+      </div>
+      <div class="preset-row">
+        <span class="preset-btn" onclick="presetAll('morning')">全部上午</span>
+        <span class="preset-btn" onclick="presetAll('afternoon')">全部下午</span>
+        <span class="preset-btn" onclick="presetAll('evening')">全部晚上</span>
+        <span class="preset-btn" onclick="presetAll('allday')">全天</span>
+        <span class="preset-btn" onclick="presetAll('clear')">清除</span>
+      </div>
+      ${gridHtml}
+      <div class="legend mt-8">
+        <div class="legend-item"><div class="lc" style="background:#fff;border-color:#E2E8F0"></div>未选</div>
+        <div class="legend-item"><div class="lc" style="background:#3B82F6"></div>已选候选</div>
+        <div class="legend-item"><div class="lc" style="background:#94A3B8"></div>已排除</div>
+        <div class="legend-item"><div class="lc" style="background:#E2E8F0"></div>不可选日期</div>
+        <div class="legend-item"><div class="lc" style="background:#FFFBF5;border-color:#FED7AA"></div>周末</div>
+      </div>`:''}
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-s" onclick="nav('${isEdit?'/event/'+eventId:'/'}')">${isEdit?'← 返回':'← 首页'}</button>
+      <button class="btn btn-g" onclick="doSaveEvent('${eventId||''}')" id="btn-save"${S.orgSlots.size===0?' disabled':''}>${isEdit?'保存修改':'创建活动'}</button>
+    </div>`;
+
+  app.innerHTML=html;
+  setupDatePicker();
+  if(picked.length>0) setupOrgGridDrag();
+}
+
+// === Date picker (stage 1) ===
+function setupDatePicker(){
+  let isDragging=false, dragAction=null;
+  document.querySelectorAll('[data-pick]').forEach(el=>{
+    function start(e){
+      e.preventDefault();
+      const ds=el.dataset.pick;
+      isDragging=true;
+      dragAction=S.pickedDates.has(ds)?'remove':'add';
+      applyPick(el,ds);
+    }
+    el.addEventListener('mousedown',start);
+    el.addEventListener('touchstart',start,{passive:false});
+  });
+  function moveH(cx,cy){
+    if(!isDragging) return;
+    const el=document.elementFromPoint(cx,cy);
+    if(!el) return;
+    const pickEl=el.closest('[data-pick]');
+    if(!pickEl) return;
+    applyPick(pickEl,pickEl.dataset.pick);
+  }
+  document.addEventListener('mousemove',e=>moveH(e.clientX,e.clientY));
+  document.addEventListener('touchmove',e=>{if(!isDragging)return;e.preventDefault();moveH(e.touches[0].clientX,e.touches[0].clientY)},{passive:false});
+  document.addEventListener('mouseup',()=>{if(isDragging){isDragging=false;rebuild()}});
+  document.addEventListener('touchend',()=>{if(isDragging){isDragging=false;rebuild()}});
+
+  function applyPick(el,ds){
+    if(dragAction==='add'){
+      S.pickedDates.add(ds);
+      el.style.borderColor='#22C55E';el.style.background='#DCFCE7';
+    }else{
+      S.pickedDates.delete(ds);
+      // Remove orgSlots for this date
+      S.orgSlots.forEach(k=>{if(k.startsWith(ds+'_'))S.orgSlots.delete(k)});
+      const isTod=ds===toDS(new Date());
+      const isWeekend=isWE(ds);
+      el.style.borderColor='transparent';
+      el.style.background=isTod?'#DBEAFE':isWeekend?'#FFF7ED':'';
+    }
+    const counter=document.querySelector('.tc strong');
+    if(counter) counter.textContent=S.pickedDates.size;
+  }
+}
+
+// === Time range controls ===
+function onRangeChange(){
+  saveFormFields();
+  const sEl=document.getElementById('r-start'),eEl=document.getElementById('r-end');
+  if(!sEl||!eEl) return;
+  const s=new Date(sEl.value+'T00:00:00'),e=new Date(eEl.value+'T00:00:00');
+  if(isNaN(s)||isNaN(e)||e<s) return;
+  S.rangeStart=s;
+  S.rangeDays=Math.min(30,Math.max(1,Math.round((e-s)/86400000)+1));
+  // Remove picked dates outside new range
+  const newRange=new Set();
+  for(let i=0;i<S.rangeDays;i++){const d=new Date(S.rangeStart);d.setDate(d.getDate()+i);newRange.add(toDS(d))}
+  S.pickedDates.forEach(ds=>{if(!newRange.has(ds)){S.pickedDates.delete(ds);S.orgSlots.forEach(k=>{if(k.startsWith(ds+'_'))S.orgSlots.delete(k)})}});
+  rebuild();
+}
+
+function setDur(days){
+  saveFormFields();
+  const today=new Date();today.setHours(0,0,0,0);
+  if(!S.rangeStart||S.rangeStart<today) S.rangeStart=new Date(today);
+  S.rangeDays=days;
+  // Trim picked dates
+  const newRange=new Set();
+  for(let i=0;i<days;i++){const d=new Date(S.rangeStart);d.setDate(d.getDate()+i);newRange.add(toDS(d))}
+  S.pickedDates.forEach(ds=>{if(!newRange.has(ds)){S.pickedDates.delete(ds);S.orgSlots.forEach(k=>{if(k.startsWith(ds+'_'))S.orgSlots.delete(k)})}});
+  rebuild();
+}
+
+function toggleHideUnpicked(){
+  saveFormFields();
+  S.hideUnpicked=!S.hideUnpicked;
+  rebuild();
+}
+
+function onTimeRangeChange(){
+  saveFormFields();
+  const sEl=document.getElementById('ts-start'),eEl=document.getElementById('ts-end');
+  if(!sEl||!eEl) return;
+  const sv=parseInt(sEl.value),ev=parseInt(eEl.value);
+  if(ev<=sv){toast('结束时间必须晚于开始时间');return}
+  S.timeStart=sv;S.timeEnd=ev;
+  // Remove orgSlots outside new time range
+  S.orgSlots.forEach(k=>{
+    const t=k.split('_')[1];
+    const m=parseInt(t.split(':')[0])*60+parseInt(t.split(':')[1]);
+    if(m<sv*60||m>=ev*60) S.orgSlots.delete(k);
+  });
+  rebuild();
+}
+
+function changeGran(g){
+  saveFormFields();
+  const old=S.granularity;if(g===old) return;
+  const ns=new Set();
+  if(g>old){
+    S.orgSlots.forEach(k=>{const m=parseInt(k.split('_')[1].split(':')[0])*60+parseInt(k.split('_')[1].split(':')[1]);if(m%g===0)ns.add(k)});
+  }else{
+    S.orgSlots.forEach(k=>{
+      ns.add(k);
+      const[date,time]=k.split('_');
+      const m=parseInt(time.split(':')[0])*60+parseInt(time.split(':')[1]);
+      const m2=m+g;
+      if(m2<S.timeEnd*60) ns.add(date+'_'+String(Math.floor(m2/60)).padStart(2,'0')+':'+String(m2%60).padStart(2,'0'));
+    });
+  }
+  S.orgSlots=ns;S.granularity=g;rebuild();
+}
+
+function presetAll(type){
+  saveFormFields();
+  if(type==='clear'){S.orgSlots.clear();rebuild();return}
+
+  const times_=timeRows(S.granularity, S.timeStart, S.timeEnd);
+  let sM,eM;
+  if(type==='morning'){sM=9*60;eM=12*60}
+  else if(type==='afternoon'){sM=14*60;eM=17*60}
+  else if(type==='evening'){sM=19*60;eM=22*60}
+  else if(type==='allday'){sM=S.timeStart*60;eM=S.timeEnd*60}
+
+  S.pickedDates.forEach(ds=>{
+    times_.forEach(t=>{
+      const m=parseInt(t.split(':')[0])*60+parseInt(t.split(':')[1]);
+      const key=ds+'_'+t;
+      if(m>=sM&&m<eM&&!S.excludedSlots.has(key)) S.orgSlots.add(key);
+    });
+  });
+  rebuild();
+}
+
+// ===== Exclusion rules =====
+function recomputeExcluded(){
+  S.excludedSlots.clear();
+  // Re-parse rules against current dates/times (in case dates changed)
+  S.excludeRules.forEach(rule=>{
+    const newSlots=localParseExclusion(rule.text);
+    if(newSlots&&newSlots.length>0) rule.slots=newSlots;
+    // AI-parsed rules keep their original slots
+    if(!rule.active||!rule.slots) return;
+    rule.slots.forEach(k=>S.excludedSlots.add(k));
+  });
+  // Remove any orgSlots that are now excluded
+  S.excludedSlots.forEach(k=>S.orgSlots.delete(k));
+}
+
+function toggleRule(idx){
+  saveFormFields();
+  S.excludeRules[idx].active=!S.excludeRules[idx].active;
+  recomputeExcluded();
+  rebuild();
+}
+
+function removeRule(idx){
+  saveFormFields();
+  S.excludeRules.splice(idx,1);
+  recomputeExcluded();
+  rebuild();
+}
+
+function addManualRule(){
+  saveFormFields();
+  const txt=document.getElementById('ex-input').value.trim();
+  if(!txt){toast('请输入排除规则');return}
+  parseAndAddRule(txt);
+}
+
+function parseAndAddRule(txt){
+  // Try local parse first, then AI
+  const slots=localParseExclusion(txt);
+  if(slots&&slots.length>0){
+    S.excludeRules.push({text:txt,active:true,slots});
+    recomputeExcluded();
+    rebuild();
+  }else{
+    aiParseExclusion(txt);
+  }
+}
+
+function localParseExclusion(txt){
+  const picked=Array.from(S.pickedDates).sort();
+  const times_=timeRows(S.granularity, S.timeStart, S.timeEnd);
+  const slots=[];
+  const gran=S.granularity;
+
+  // Pattern: "周X HH:MM-HH:MM"
+  const wdMap={'日':0,'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'天':0};
+  const wdMatch=txt.match(/周([日一二三四五六天])\s*(\d{1,2})[:\uff1a](\d{2})\s*[-\u2013\u2014\uff0d]\s*(\d{1,2})[:\uff1a](\d{2})/);
+  if(wdMatch){
+    const wd=wdMap[wdMatch[1]];
+    const sM=parseInt(wdMatch[2])*60+parseInt(wdMatch[3]);
+    const eM=parseInt(wdMatch[4])*60+parseInt(wdMatch[5]);
+    picked.forEach(ds=>{
+      const d=new Date(ds+'T00:00:00');
+      if(d.getDay()===wd){
+        times_.forEach(t=>{
+          const m=parseInt(t.split(':')[0])*60+parseInt(t.split(':')[1]);
+          if(m>=sM&&m<eM) slots.push(ds+'_'+t);
+        });
+      }
+    });
+    return slots;
+  }
+
+  // Pattern: "每周X HH:MM-HH:MM" or "每周X"
+  const everyWd=txt.match(/每?周([日一二三四五六天])(?:\s*(\d{1,2})[:\uff1a](\d{2})\s*[-\u2013\u2014\uff0d]\s*(\d{1,2})[:\uff1a](\d{2}))?/);
+  if(everyWd){
+    const wd=wdMap[everyWd[1]];
+    const hasTm=!!everyWd[2];
+    const sM=hasTm?parseInt(everyWd[2])*60+parseInt(everyWd[3]):S.timeStart*60;
+    const eM=hasTm?parseInt(everyWd[4])*60+parseInt(everyWd[5]):S.timeEnd*60;
+    picked.forEach(ds=>{
+      const d=new Date(ds+'T00:00:00');
+      if(d.getDay()===wd){
+        times_.forEach(t=>{
+          const m=parseInt(t.split(':')[0])*60+parseInt(t.split(':')[1]);
+          if(m>=sM&&m<eM) slots.push(ds+'_'+t);
+        });
+      }
+    });
+    return slots;
+  }
+
+  // Pattern: "YYYY-MM-DD HH:MM-HH:MM" or "M月D日 HH:MM-HH:MM"
+  const dateMatch=txt.match(/(\d{4}-\d{2}-\d{2}|\d{1,2}月\d{1,2}日?)\s*(\d{1,2})[:\uff1a](\d{2})\s*[-\u2013\u2014\uff0d]\s*(\d{1,2})[:\uff1a](\d{2})/);
+  if(dateMatch){
+    let ds=dateMatch[1];
+    if(ds.includes('月')){
+      const dm=ds.match(/(\d{1,2})月(\d{1,2})/);
+      if(dm){
+        const yr=new Date().getFullYear();
+        ds=yr+'-'+String(parseInt(dm[1])).padStart(2,'0')+'-'+String(parseInt(dm[2])).padStart(2,'0');
+      }
+    }
+    if(S.pickedDates.has(ds)){
+      const sM=parseInt(dateMatch[2])*60+parseInt(dateMatch[3]);
+      const eM=parseInt(dateMatch[4])*60+parseInt(dateMatch[5]);
+      times_.forEach(t=>{
+        const m=parseInt(t.split(':')[0])*60+parseInt(t.split(':')[1]);
+        if(m>=sM&&m<eM) slots.push(ds+'_'+t);
+      });
+    }
+    return slots;
+  }
+
+  return null; // can't parse locally
+}
+
+async function aiParseExclusion(txt){
+  const picked=Array.from(S.pickedDates).sort();
+  const times_=timeRows(S.granularity, S.timeStart, S.timeEnd);
+  const btn=document.getElementById('ex-ai-btn');
+  if(btn){btn.disabled=true;btn.textContent='AI 解析中...';}
+
+  const prompt=`你是一个时间解析助手。用户要从日程表中排除某些时间段。
+
+可用日期: ${picked.join(', ')}
+时间粒度: ${S.granularity}分钟
+可用时间行: ${times_.join(', ')}
+
+用户输入: "${txt}"
+
+请返回需要排除的时间槽列表，格式为 JSON 数组，每个元素是 "YYYY-MM-DD_HH:MM" 格式的字符串。
+只返回 JSON 数组，不要其他文字。例如: ["2026-03-12_08:00","2026-03-12_08:30"]
+如果无法解析，返回空数组 []。`;
+
+  try{
+    const res=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer REMOVED'
+      },
+      body:JSON.stringify({
+        model:'google/gemini-2.5-flash',
+        messages:[{role:'user',content:prompt}],
+        temperature:0,
+        response_format:{type:'json_object'}
+      })
+    });
+    const data=await res.json();
+    let content=data.choices?.[0]?.message?.content||'[]';
+    // Extract JSON array from response
+    const arrMatch=content.match(/\[[\s\S]*\]/);
+    if(arrMatch){
+      const slots=JSON.parse(arrMatch[0]);
+      if(Array.isArray(slots)&&slots.length>0){
+        S.excludeRules.push({text:txt,active:true,slots});
+        recomputeExcluded();
+        toast(`已排除 ${slots.length} 个时间段`);
+        rebuild();
+        return;
+      }
+    }
+    toast('AI 未能解析该规则，请尝试更具体的描述');
+  }catch(e){
+    toast('AI 解析失败: '+e.message);
+  }
+  if(btn){btn.disabled=false;btn.textContent='AI 解析';}
+}
+
+// ===== Organizer Grid Drag (stage 2) =====
+function setupOrgGridDrag(){
+  let dragState=null;
+
+  document.querySelectorAll('.org-cell:not(.excluded)').forEach(cell=>{
+    function start(e){
+      e.preventDefault();
+      const ds=cell.dataset.date,idx=parseInt(cell.dataset.idx);
+      const key=ds+'_'+cell.dataset.time;
+      const action=S.orgSlots.has(key)?'remove':'add';
+      const originals={};
+      document.querySelectorAll(`.org-cell[data-date="${ds}"]`).forEach(c=>{
+        originals[c.dataset.time]=S.orgSlots.has(ds+'_'+c.dataset.time);
+      });
+      dragState={col:ds,startIdx:idx,action,originals};
+      applyOrgDrag(idx);
+      dragInd.textContent=action==='add'?'拖选：添加候选':'拖选：移除候选';
+      dragInd.classList.add('show');
+    }
+    cell.addEventListener('mousedown',start);
+    cell.addEventListener('touchstart',start,{passive:false});
+  });
+
+  function moveH(cx,cy){
+    if(!dragState) return;
+    const el=document.elementFromPoint(cx,cy);
+    if(!el||!el.classList.contains('org-cell')||el.dataset.date!==dragState.col) return;
+    applyOrgDrag(parseInt(el.dataset.idx));
+  }
+  document.addEventListener('mousemove',e=>{if(dragState)moveH(e.clientX,e.clientY)});
+  document.addEventListener('touchmove',e=>{if(!dragState)return;e.preventDefault();moveH(e.touches[0].clientX,e.touches[0].clientY)},{passive:false});
+  function endH(){dragState=null;dragInd.classList.remove('show');const btn=document.getElementById('btn-save');if(btn)btn.disabled=S.orgSlots.size===0;}
+  document.addEventListener('mouseup',endH);
+  document.addEventListener('touchend',endH);
+
+  function applyOrgDrag(curIdx){
+    if(!dragState) return;
+    const{col,startIdx,action,originals}=dragState;
+    const lo=Math.min(startIdx,curIdx),hi=Math.max(startIdx,curIdx);
+    document.querySelectorAll(`.org-cell[data-date="${col}"]:not(.excluded)`).forEach(c=>{
+      const t=c.dataset.time,idx=parseInt(c.dataset.idx),key=col+'_'+t;
+      if(idx>=lo&&idx<=hi){
+        if(action==='add'){S.orgSlots.add(key);c.classList.add('sel')}
+        else{S.orgSlots.delete(key);c.classList.remove('sel')}
+      }else{
+        if(originals[t]){S.orgSlots.add(key);c.classList.add('sel')}
+        else{S.orgSlots.delete(key);c.classList.remove('sel')}
+      }
+    });
+  }
+}
+
+// ===== Save (Create or Update) =====
+function orgSlotsToApi(){
+  const byDate={};
+  S.pickedDates.forEach(date=>{
+    byDate[date]=[];
+  });
+  S.orgSlots.forEach(key=>{
+    const [date,time]=key.split('_');
+    if(!byDate[date]) byDate[date]=[];
+    byDate[date].push(time);
+  });
+  return Object.entries(byDate).sort(([a],[b])=>a.localeCompare(b)).map(([date,times])=>{
+    times.sort();
+    return{date, slots:times.map(t=>({start:t, end:timeEnd(t,S.granularity)}))};
+  });
+}
+
+async function doSaveEvent(eventId){
+  const title=document.getElementById('f-t').value.trim();
+  const organizer=document.getElementById('f-o').value.trim();
+  const eventType=document.getElementById('f-tp').value;
+  const location_=document.getElementById('f-l').value.trim();
+  const desc=document.getElementById('f-d').value.trim();
+
+  if(!title){toast('请输入活动名称');return}
+  if(!organizer){toast('请输入发起人姓名');return}
+  if(S.orgSlots.size===0){toast('请在时间表上选择至少一个时段');return}
+
+  S.title=title;S.organizer=organizer;S.eventType=eventType;S.location=location_;S.description=desc;
+  const dates=orgSlotsToApi();
+  const body={title,organizer,owner_username:getCurrentAccount()?.username||'',event_type:eventType,location:location_,description:desc,dates};
+
+  const btn=document.getElementById('btn-save');
+  btn.disabled=true;btn.textContent='保存中...';
+
+  try{
+    if(eventId){
+      // Update
+      await api('PUT',`/api/events/${eventId}`,body);
+      toast('活动已更新！');
+      showEventSummaryModal(eventId,'edit',{title,organizer,description:desc,dateSummary:dates.length?summarizeDateRange({dates}):'还没有候选日期'});
+    }else{
+      // Create
+      const result=await api('POST','/api/events',body);
+      localStorage.setItem('admin_'+result.id, result.admin_token);
+      setSessionUserName(organizer);
+      saveMyEvent(result.id, title, organizer);
+      toast('活动创建成功！');
+      // Clear state
+      S.orgSlots=new Set();S.title='';S.organizer='';S.location='';S.description='';
+      showEventSummaryModal(result.id,'create',{title,organizer,description:desc,dateSummary:dates.length?summarizeDateRange({dates}):'还没有候选日期'});
+    }
+  }catch(e){
+    toast(e.message);
+    btn.disabled=false;btn.textContent=eventId?'保存修改':'创建活动';
+  }
+}
+
+// ===== Event page (Participant) =====
+async function renderEvent(eventId){
+  app.innerHTML='<div class="loading"><div class="spinner"></div><p class="mt-8">加载中...</p></div>';
+  try{S.currentEvent=await api('GET',`/api/events/${eventId}`)}
+  catch(e){
+    app.innerHTML=`<div class="card"><h2>活动不存在</h2><p class="tm-c">可能已过期或链接错误</p>
+      <button class="btn btn-p mt-16" onclick="nav('/')">返回首页</button></div>`;return;
+  }
+  rememberPendingEvent(eventId,S.currentEvent?.title||'');
+
+  // Check admin
+  const currentAccount=getCurrentAccount();
+  const isOwner=!!currentAccount?.username&&S.currentEvent.owner_username===currentAccount.username;
+  const isAdmin=S.activeRole==='manager'||!!localStorage.getItem('admin_'+eventId)||isOwner;
+  if(isAdmin) S.adminToken=localStorage.getItem('admin_'+eventId);
+
+  if(S.activeRole==='organizer'||S.activeRole==='manager'){
+    await renderOrganizerDashboard(eventId,isAdmin);
+    return;
+  }
+
+  // Auto-login with saved token
+  const savedToken=localStorage.getItem('token_'+eventId);
+  if(savedToken&&!S.participant){
+    try{
+      S.participant=await api('GET',`/api/auth/check?token=${savedToken}`);
+      S.participant.token=savedToken;
+      S.participant.event_id=eventId;
+      setSessionUserName(S.participant.name);
+      updateRoleBar();
+      saveMyEvent(eventId,S.currentEvent.title,S.participant.name);
+      clearPendingEvent();
+    }catch(e){localStorage.removeItem('token_'+eventId)}
+  }
+
+  if((!S.participant||S.participant.event_id!==eventId) && await tryAutoEnterParticipantEvent(eventId)){
+    return;
+  }
+
+  if(!S.participant||S.participant.event_id!==eventId){
+    if(!getCurrentAccount()){
+      app.innerHTML=`
+        <div class="card">
+          <div class="page-kicker tc">Meeting</div>
+          <h2 style="text-align:center">${esc(S.currentEvent.title)}</h2>
+          <div class="compact-meta" style="justify-content:center">
+            <span>发起人：${esc(S.currentEvent.organizer)}</span>
+            <span>代码：${eventId}</span>
+            <span>${esc(summarizeDateRange(S.currentEvent))}</span>
+          </div>
+          ${S.currentEvent.description?`<p class="tm-c tc mt-8">${esc(S.currentEvent.description)}</p>`:''}
+        </div>
+        <div class="card">
+          <h2>活动信息</h2>
+          <div class="info-list">
+            <div class="info-item"><strong>活动代码</strong><span style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace">${eventId}</span></div>
+            <div class="info-item"><strong>候选时段数</strong><span>${summarizeSlotCount(S.currentEvent)} 个</span></div>
+            <div class="info-item"><strong>当前状态</strong><span>未登录，仅可浏览活动信息</span></div>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-g" onclick="goVote('${eventId}')">参会</button>
+            <button class="btn btn-s" onclick="shareLink('${eventId}')">分享</button>
+          </div>
+        </div>`;
+      return;
+    }
+    app.innerHTML=`
+      <div class="card">
+        <div class="page-kicker tc">Vote</div>
+        <h2 style="text-align:center">${esc(S.currentEvent.title)}</h2>
+        <div class="compact-meta" style="justify-content:center">
+          <span>发起人：${esc(S.currentEvent.organizer)}</span>
+          <span>代码：${eventId}</span>
+          <span>${esc(summarizeDateRange(S.currentEvent))}</span>
+        </div>
+        <p class="tm-c tc mt-8">当前账号无法直接进入这个活动，请切换账号后再试。</p>
+      </div>
+      <div class="card">
+        <div class="btn-row">
+          <button class="btn btn-p" onclick="switchAccount()">切换账户</button>
+          <button class="btn btn-s" onclick="nav('/')">返回列表</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  await loadMyAvail(eventId);
+  renderAvailGrid(eventId,isAdmin);
+}
+
+async function renderOrganizerDashboard(eid,isAdmin){
+  const ev=S.currentEvent;
+  if(!isAdmin){
+    app.innerHTML=`
+      <div class="card">
+        <h2>${esc(ev.title)}</h2>
+        <p class="tm-c">当前设备没有这个活动的发起人权限。</p>
+      </div>
+      <div class="card entry-button-card">
+        <button class="btn btn-p" onclick="setActiveRole('participant')">切换为参与者</button>
+        <button class="btn btn-s mt-8" onclick="nav('/create')">发起新活动</button>
+      </div>`;
+    return;
+  }
+
+  let res=null;
+  try{res=await api('GET',`/api/events/${eid}/results`)}catch(e){}
+  const total=res?.total_participants??ev.participants?.length??0;
+  const responded=(res?.participants_status||[]).filter(p=>p.has_responded).length;
+  const top=res?.recommendations?.[0];
+  let participantHtml='<p class="tm-c">还没有参与投票者</p>';
+  if((res?.participants_status||[]).length){
+    participantHtml='<ul class="plist">';
+    res.participants_status.forEach(p=>{
+      participantHtml+=`<li><span class="sdot ${p.has_responded?'ok':'no'}"></span>${esc(p.name)} <span class="tm-c">${p.has_responded?'已填写':'未填写'}</span></li>`;
+    });
+    participantHtml+='</ul>';
+  }
+
+  app.innerHTML=`
+    <div class="card">
+      <h2>${esc(ev.title)}${ev.is_hidden?'<span class="row-hidden">已下架</span>':''}</h2>
+      <div class="row-sub">发起人：${esc(ev.organizer)} · ${esc(summarizeDateRange(ev))} · ${total} 位参与投票者 · ${responded} 位已填写${top?` · 共同有空：${fmtDate(top.date)} ${top.start_time}-${top.end_time}`:''}</div>
+      <div class="action-strip">
+        ${(!ev.is_hidden||S.activeRole==='manager')?`<button class="btn btn-p btn-sm" onclick="${S.activeRole==='manager' ? `goAsRole('manager','/event/${eid}/edit')` : `nav('/event/${eid}/edit')`}">编辑活动</button>`:''}
+        <button class="btn btn-g btn-sm" onclick="nav('/event/${eid}/results')">结果</button>
+        ${!ev.is_hidden?`<button class="btn btn-o btn-sm" onclick="setActiveRole('participant')">切到参与者视角</button>`:''}
+        ${S.activeRole==='manager'?`<button class="btn btn-o btn-sm" onclick="toggleEventHidden('${eid}',${ev.is_hidden?'false':'true'})">${ev.is_hidden?'重新上架':'下架项目'}</button>
+        <button class="btn btn-o btn-sm" onclick="deleteOrganizerEvent('${eid}')">删除活动</button>`:''}
+      </div>
+      ${ev.description?`<p class="tm-c mt-8">${esc(ev.description)}</p>`:''}
+    </div>
+    ${!ev.is_hidden?`<div class="share-box">
+      <div style="font-weight:600;margin-bottom:4px">分享链接</div>
+      <div class="share-url">${location.origin}/#/event/${eid}</div>
+      <button class="btn btn-sm btn-s mt-8" onclick="shareLink('${eid}')">分享</button>
+    </div>`:''}
+    <div class="card">
+      <h2>参与投票者状态</h2>
+      ${participantHtml}
+    </div>`;
+}
+
+function renderAuthPage(eid,isAdmin){
+  const ev=S.currentEvent;
+  function render(mode){
+    let adminBtn=isAdmin&&(S.activeRole==='organizer'||S.activeRole==='manager')&&!ev.is_hidden?`<button class="btn btn-o btn-sm mt-8" onclick="${S.activeRole==='manager' ? `goAsRole('manager','/event/${eid}/edit')` : `nav('/event/${eid}/edit')`}">编辑活动设置</button>`:'';
+    app.innerHTML=`
+      <div class="card">
+        <div class="page-kicker tc">Vote</div>
+        <h2 style="text-align:center">${esc(ev.title)}</h2>
+        <div class="compact-meta" style="justify-content:center">
+          <span>发起人：${esc(ev.organizer)}</span>
+          <span>代码：${eid}</span>
+          <span>${esc(summarizeDateRange(ev))}</span>
+        </div>
+        ${ev.description?`<p class="tm-c tc mt-8">${esc(ev.description)}</p>`:''}
+        ${adminBtn}
+      </div>
+      <div class="card">
+        <h2>${mode==='join'?'加入后开始投票':'登录后继续投票'}</h2>
+        <p class="tm-c mb-16">${mode==='join'?'第一次进入这个链接时，填一次信息即可加入该活动。':'如果你之前已经加入过，直接登录就会回到投票表。'}</p>
+        <div class="modal-tabs">
+          <button class="modal-tab ${mode==='join'?'active':''}" onclick="document.dispatchEvent(new CustomEvent('as',{detail:'join'}))">加入活动</button>
+          <button class="modal-tab ${mode==='login'?'active':''}" onclick="document.dispatchEvent(new CustomEvent('as',{detail:'login'}))">已参与，登录</button>
+        </div>
+        ${mode==='join'?`
+          <div class="fg"><label>用户名 *</label><input id="au" value="student1" placeholder="登录用，如 zhangsan"></div>
+          <div class="fg"><label>设置密码 *（3位以上）</label><input id="ap" type="password" value="1234" placeholder="设置密码"></div>
+          <div class="fg"><label>姓名 *</label><input id="an" value="张三" placeholder="显示名，如 张三"></div>
+          <div class="fg"><label>邮箱</label><input id="ae" type="email" placeholder="可选"></div>
+          <button class="btn btn-p" onclick="doJoin('${eid}')">加入活动</button>
+        `:`
+          <div class="fg"><label>用户名 *</label><input id="au" value="student1" placeholder="你注册时的用户名"></div>
+          <div class="fg"><label>密码 *</label><input id="ap" type="password" value="1234" placeholder="你的密码"></div>
+          <button class="btn btn-p" onclick="doLogin('${eid}')">登录</button>
+        `}
+      </div>`;
+  }
+  document.removeEventListener('as',window._asH);
+  window._asH=e=>render(e.detail);
+  document.addEventListener('as',window._asH);
+  render('login');
+}
+
+async function applyParticipantSession(eid, participant, greeting){
+  S.participant={...participant,event_id:eid,token:participant.token};
+  localStorage.setItem('token_'+eid,participant.token);
+  setSessionUserName(participant.name);
+  updateRoleBar();
+  saveMyEvent(eid,S.currentEvent?.title||eid,participant.name);
+  clearPendingEvent();
+  toast(`${greeting}${participant.name}！`);
+  await loadMyAvail(eid);
+  renderAvailGrid(eid,!!localStorage.getItem('admin_'+eid));
+}
+
+async function tryAutoEnterParticipantEvent(eid){
+  const account=getCurrentAccount();
+  if(!account?.username||!account?.password) return false;
+  try{
+    const loggedIn=await api('POST',`/api/events/${eid}/login`,{username:account.username,password:account.password});
+    await applyParticipantSession(eid,loggedIn,'欢迎回来，');
+    return true;
+  }catch(loginErr){
+    try{
+      const joined=await api('POST',`/api/events/${eid}/join`,{
+        username:account.username,
+        name:account.name||account.username,
+        email:'',
+        password:account.password
+      });
+      await applyParticipantSession(eid,joined,'欢迎，');
+      return true;
+    }catch(joinErr){
+      return false;
+    }
+  }
+}
+
+async function doJoin(eid){
+  const u=document.getElementById('au').value.trim();
+  const n=document.getElementById('an').value.trim();
+  const e=document.getElementById('ae').value.trim();
+  const p=document.getElementById('ap').value;
+  if(!u){toast('请输入用户名');return}
+  if(!n){toast('请输入姓名');return}
+  if(!p||p.length<3){toast('密码至少3位');return}
+  try{
+    const r=await api('POST',`/api/events/${eid}/join`,{username:u,name:n,email:e,password:p});
+    await applyParticipantSession(eid,r,'欢迎，');
+  }catch(e){toast(e.message)}
+}
+
+async function doLogin(eid){
+  const u=document.getElementById('au').value.trim();
+  const p=document.getElementById('ap').value;
+  if(!u||!p){toast('请输入用户名和密码');return}
+  try{
+    const r=await api('POST',`/api/events/${eid}/login`,{username:u,password:p});
+    await applyParticipantSession(eid,r,'欢迎回来，');
+  }catch(e){toast(e.message)}
+}
+
+async function loadMyAvail(eid){
+  try{
+    const all=await api('GET',`/api/events/${eid}/availability`);
+    S.myAvailability={};
+    all.forEach(a=>{if(a.participant_id===S.participant.participant_id) S.myAvailability[a.time_slot_id]=a.status});
+  }catch(e){}
+}
+function clearMyAvailSelections(){
+  S.myAvailability={};
+  document.querySelectorAll('.avail-cell[data-slot]').forEach(c=>{
+    c.className=c.className.replace(/ ?available| ?maybe/g,'');
+  });
+  toast('已清空当前选择，点击保存后才会生效');
+}
+
+// ===== Participant Availability Grid =====
+function renderAvailGrid(eid,isAdmin){
+  const ev=S.currentEvent;
+  const dates=ev.dates;
+  const savedCount=Object.keys(S.myAvailability).length;
+  const gridGranularity=inferEventGranularity(ev);
+
+  const allTimes=new Set();
+  dates.forEach(d=>d.slots.forEach(s=>allTimes.add(s.start_time)));
+  const tLabels=Array.from(allTimes).sort();
+
+  const slotLookup={};
+  dates.forEach((d,di)=>d.slots.forEach(s=>{slotLookup[di+'_'+s.start_time]=s}));
+
+  // Week groups for separators
+  const wg=[];let lm=null;
+  dates.forEach((d,i)=>{const m=toDS(getMon(new Date(d.date+'T00:00:00')));if(m!==lm){wg.push(i);lm=m}});
+
+  let g=`<div class="avail-grid" style="grid-template-columns:54px repeat(${dates.length},1fr)">`;
+  g+=`<div class="corner"></div>`;
+  dates.forEach((d,i)=>{
+    const sd=shortD(d.date);const we=isWE(d.date)?' we':'';
+    const wb=wg.includes(i)&&i>0?' wb':'';
+    g+=`<div class="dh${we}${wb}"><div class="dow">${sd.dow}</div>${sd.md}</div>`;
+  });
+
+  tLabels.forEach(time=>{
+    g+=`<div class="tl">${timeLabelHtml(time,gridGranularity)}</div>`;
+    dates.forEach((d,di)=>{
+      const slot=slotLookup[di+'_'+time];
+      const we=isWE(d.date)?' we':'';
+      const wb=wg.includes(di)&&di>0?' wb':'';
+      if(slot){
+        const st=S.myAvailability[slot.id]||'';
+        g+=`<div class="avail-cell${we}${wb} ${st}" data-slot="${slot.id}"></div>`;
+      }else{
+        g+=`<div class="avail-cell disabled${wb}"></div>`;
+      }
+    });
+  });
+  g+=`</div>`;
+
+  let adminBtn=isAdmin&&S.activeRole==='organizer'?`<button class="btn btn-o btn-sm" onclick="nav('/event/${eid}/edit')">编辑活动</button>`:'';
+
+  app.innerHTML=`
+    <div class="card">
+      <div class="page-kicker">Vote</div>
+      <h2>${esc(ev.title)}</h2>
+      <div class="compact-meta">
+        <span>发起人：${esc(ev.organizer)}</span>
+        <span>${esc(summarizeDateRange(ev))}</span>
+      </div>
+      <p class="tm-c mt-8">${savedCount>0?`已载入你上次保存的 ${savedCount} 个选择。你可以直接修改后重新保存。`:'你还没有保存过时间，下面可以直接开始选择。'}</p>
+      <div class="action-strip">
+        <button class="btn btn-s btn-sm" onclick="clearMyAvailSelections()">清空我的时间</button>
+        <button class="btn btn-g btn-sm" onclick="saveAvail('${eid}')" id="btn-sv-top">保存我的时间</button>
+        <button class="btn btn-p btn-sm" onclick="nav('/event/${eid}/results')">结果</button>
+        ${adminBtn}
+      </div>
+    </div>
+    <div class="card">
+      <div class="legend">
+        <div class="legend-item"><div class="lc" style="background:#E2E8F0"></div>不可选</div>
+        <div class="legend-item"><div class="lc" style="background:#fff;border-color:#E2E8F0"></div>未标记</div>
+        <div class="legend-item"><div class="lc" style="background:#22C55E"></div>有空</div>
+        <div class="legend-item"><div class="lc" style="background:#FBBF24"></div>也许</div>
+      </div>
+      <div class="grid-wrapper" id="gw">${g}</div>
+      <div class="btn-row">
+        <button class="btn btn-s mt-16" onclick="clearMyAvailSelections()">清空我的时间</button>
+        <button class="btn btn-g mt-16" onclick="saveAvail('${eid}')" id="btn-sv">保存我的时间</button>
+      </div>
+    </div>
+    <div class="card">
+      <button class="btn btn-p" onclick="nav('/event/${eid}/results')">结果 →</button>
+    </div>
+    <div class="share-box">
+      <div style="font-weight:600;margin-bottom:4px">邀请更多人参与</div>
+      <div style="font-size:.9rem;margin:4px 0">活动代码：<strong style="font-family:monospace;font-size:1.1rem">${eid}</strong></div>
+      <div class="share-url">${location.origin}/#/event/${eid}</div>
+      <button class="btn btn-sm btn-s mt-8" onclick="shareLink('${eid}')">复制链接</button>
+    </div>`;
+
+  setupAvailDrag();
+}
+
+function setupAvailDrag(){
+  let isDragging=false, dragStatus=null, lastCell=null;
+
+  function nextSt(cur){return cur===''?'available':cur==='available'?'maybe':''}
+  function applyCell(c,sid,st){
+    if(st===''){delete S.myAvailability[sid];c.className=c.className.replace(/ ?available| ?maybe/g,'')}
+    else{S.myAvailability[sid]=st;c.className=c.className.replace(/ ?available| ?maybe/g,'')+' '+st}
+  }
+
+  function startD(c){
+    if(c.classList.contains('disabled')) return;
+    const sid=parseInt(c.dataset.slot);if(!sid) return;
+    isDragging=true;
+    dragStatus=nextSt(S.myAvailability[sid]||'');
+    applyCell(c,sid,dragStatus);lastCell=c;
+    const lbl={'available':'拖选：有空','maybe':'拖选：也许','':'拖选：清除'};
+    dragInd.textContent=lbl[dragStatus];dragInd.classList.add('show');
+  }
+  function moveD(cx,cy){
+    if(!isDragging) return;
+    const el=document.elementFromPoint(cx,cy);
+    if(!el||!el.classList.contains('avail-cell')||el.classList.contains('disabled')||el===lastCell) return;
+    const sid=parseInt(el.dataset.slot);if(!sid) return;
+    applyCell(el,sid,dragStatus);lastCell=el;
+  }
+  function endD(){isDragging=false;dragStatus=null;lastCell=null;dragInd.classList.remove('show')}
+
+  const gw=document.getElementById('gw');if(!gw) return;
+  gw.addEventListener('mousedown',e=>{const c=e.target.closest('.avail-cell');if(c){e.preventDefault();startD(c)}});
+  document.addEventListener('mousemove',e=>moveD(e.clientX,e.clientY));
+  document.addEventListener('mouseup',endD);
+  gw.addEventListener('touchstart',e=>{const c=e.target.closest('.avail-cell');if(c){e.preventDefault();startD(c)}},{passive:false});
+  document.addEventListener('touchmove',e=>{if(!isDragging)return;e.preventDefault();moveD(e.touches[0].clientX,e.touches[0].clientY)},{passive:false});
+  document.addEventListener('touchend',endD);
+}
+
+async function saveAvail(eid){
+  const btn=document.getElementById('btn-sv');
+  const topBtn=document.getElementById('btn-sv-top');
+  if(btn){btn.disabled=true;btn.textContent='保存中...'}
+  if(topBtn){topBtn.disabled=true;topBtn.textContent='保存中...'}
+  const avail=Object.entries(S.myAvailability).map(([id,st])=>({time_slot_id:parseInt(id),status:st}));
+  try{await api('PUT',`/api/events/${eid}/availability`,{availability:avail});toast('已保存！')}
+  catch(e){toast(e.message)}
+  if(btn){btn.disabled=false;btn.textContent='保存我的时间'}
+  if(topBtn){topBtn.disabled=false;topBtn.textContent='保存我的时间'}
+}
+
+function shareLink(eid){
+  const url=`${location.origin}/#/event/${eid}`;
+  if(navigator.share) navigator.share({title:S.currentEvent?.title||'约聚会',text:'请填写你的空闲时间',url});
+  else navigator.clipboard.writeText(url).then(()=>toast('链接已复制！'));
+}
+
+// ===== Results page =====
+async function renderResults(eid){
+  app.innerHTML='<div class="loading"><div class="spinner"></div><p class="mt-8">计算最佳时间...</p></div>';
+  try{
+    if(!S.currentEvent||S.currentEvent.id!==eid) S.currentEvent=await api('GET',`/api/events/${eid}`);
+    S.results=await api('GET',`/api/events/${eid}/results`);
+  }catch(e){app.innerHTML=`<div class="card"><h2>加载失败</h2><p class="tm-c">${esc(e.message)}</p></div>`;return}
+
+  const ev=S.currentEvent, res=S.results, total=res.total_participants;
+  const gridGranularity=inferEventGranularity(ev);
+  const isAdmin=!!localStorage.getItem('admin_'+eid);
+  let recH='';
+  if(res.recommendations.length>0){
+    res.recommendations.slice(0,3).forEach((r,i)=>{
+      const availableCount=r.available_names.length;
+      const percentage=total>0?Math.round(availableCount*100/total):0;
+      recH+=`<div class="rec-card"><span class="rr">${i+1}</span><span class="rt">${r.start_time} - ${r.end_time}</span>
+        <div class="rd">${fmtDate(r.date)}</div>
+        <div class="rp">
+          <span class="rp-chip">总人数 ${total}</span>
+          <span class="rp-chip em">有空 ${availableCount}</span>
+          <span class="rp-chip em">占比 ${percentage}%</span>
+          ${r.maybe_names.length?`<span class="rp-chip">也许 ${r.maybe_names.length}</span>`:''}
+        </div></div>`;
+    });
+  }else recH='<p class="tm-c tc">还没有足够的数据生成共同有空的时间</p>';
+
+  // Heatmap
+  const dates=ev.dates;
+  const allTimes=new Set();dates.forEach(d=>d.slots.forEach(s=>allTimes.add(s.start_time)));
+  const tLabels=Array.from(allTimes).sort();
+  const slotScores={};res.ranked_slots.forEach(s=>{slotScores[s.slot_id]=s});
+  const slotLookup={};dates.forEach((d,di)=>d.slots.forEach(s=>{slotLookup[di+'_'+s.start_time]=s}));
+  const wg=[];let lm=null;dates.forEach((d,i)=>{const m=toDS(getMon(new Date(d.date+'T00:00:00')));if(m!==lm){wg.push(i);lm=m}});
+
+  let hH=`<div class="avail-grid" style="grid-template-columns:54px repeat(${dates.length},1fr)">`;
+  hH+=`<div class="corner"></div>`;
+  dates.forEach((d,i)=>{
+    const sd=shortD(d.date);const we=isWE(d.date)?' we':'';const wb=wg.includes(i)&&i>0?' wb':'';
+    hH+=`<div class="dh${we}${wb}"><div class="dow">${sd.dow}</div>${sd.md}</div>`;
+  });
+  tLabels.forEach(time=>{
+    hH+=`<div class="tl">${timeLabelHtml(time,gridGranularity)}</div>`;
+    dates.forEach((d,di)=>{
+      const slot=slotLookup[di+'_'+time];
+      const wb=wg.includes(di)&&di>0?' wb':'';
+      if(slot){
+        const info=slotScores[slot.id]||{available_count:0,maybe_count:0,available:[],maybe:[]};
+        const ac=info.available_count||0,mc=info.maybe_count||0;
+        let lv=0;
+        if(total>0){const r=ac/total;if(r>=1)lv=5;else if(r>=.75)lv=4;else if(r>=.5)lv=3;else if(r>=.25)lv=2;else if(ac+mc>0)lv=1}
+        const an=(info.available||[]).join('、'),mn=(info.maybe||[]).join('、');
+        hH+=`<div class="heat-cell level-${lv}${wb}" data-avail="${esc(an)}" data-maybe="${esc(mn)}" data-time="${time}" data-ac="${ac}" data-mc="${mc}"
+          onmouseenter="showTip(event,this)" onmouseleave="hideTip()" onclick="showTip(event,this)">${ac||''}</div>`;
+      }else{
+        hH+=`<div class="avail-cell disabled${wb}"></div>`;
+      }
+    });
+  });
+  hH+=`</div>`;
+
+  let pH='<ul class="plist">';
+  res.participants_status.forEach(p=>{
+    const c=p.has_responded?'ok':'no',t=p.has_responded?'已填写':'未填写';
+    pH+=`<li><span class="sdot ${c}"></span>${esc(p.name)} <span class="tm-c">${t}</span></li>`;
+  });
+  pH+=`</ul>`;
+
+  app.innerHTML=`
+    <div class="card">
+      <div class="dash-head">
+        <div>
+          <h2>${esc(ev.title)} · 投票结果</h2>
+          <p class="tm-c">${total} 位参与投票者</p>
+        </div>
+        <button class="icon-nav-btn" onclick="nav('/')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 3.5L6 8l4.5 4.5"></path></svg><span>首页</span></button>
+      </div>
+    </div>
+    <div class="card"><h2>共同有空的时间</h2>${recH}</div>
+    <div class="card"><h2>各时段投票统计</h2>
+      <div class="legend">
+        <div class="legend-item"><div class="lc" style="background:#E2E8F0"></div>不可选</div>
+        <div class="legend-item"><div class="lc" style="background:#F1F5F9"></div>0人</div>
+        <div class="legend-item"><div class="lc" style="background:#BBF7D0"></div>少数</div>
+        <div class="legend-item"><div class="lc" style="background:#4ADE80"></div>半数</div>
+        <div class="legend-item"><div class="lc" style="background:#22C55E"></div>多数</div>
+        <div class="legend-item"><div class="lc" style="background:#15803D"></div>全员</div>
+      </div>
+      <div class="grid-wrapper">${hH}</div>
+    </div>
+    <div class="card"><h2>参与投票者</h2>${pH}</div>
+    <div class="btn-row">
+      <button class="btn btn-p" onclick="shareLink('${eid}')">分享</button>
+    </div>`;
+
+  window._rt=setInterval(()=>{if(getRoute()===`/event/${eid}/results`)renderResults(eid);else clearInterval(window._rt)},30000);
+}
+
+function showTip(e,el){
+  const a=el.dataset.avail,m=el.dataset.maybe,t=el.dataset.time;
+  let h=`<div class="tt">${t}</div>`;
+  if(a)h+=`<div class="ta">有空：${a}</div>`;
+  if(m)h+=`<div class="tm">也许：${m}</div>`;
+  if(!a&&!m)h+=`<div>暂无人标记</div>`;
+  tooltip.innerHTML=h;tooltip.style.display='block';
+  const r=el.getBoundingClientRect();
+  let l=r.left+r.width/2-110,tp=r.bottom+8;
+  if(l<8)l=8;if(l+220>window.innerWidth)l=window.innerWidth-228;
+  if(tp+100>window.innerHeight)tp=r.top-80;
+  tooltip.style.left=l+'px';tooltip.style.top=tp+'px';
+}
+function hideTip(){tooltip.style.display='none'}
+</script>
+</body>
+</html>
