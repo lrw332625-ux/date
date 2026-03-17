@@ -1481,10 +1481,7 @@ async function _getStaticData(){
 async function api(method,path,body,extraHeaders){
   if(method==='GET'){
     const sd=await _getStaticData();
-    if(sd){
-      const key=path.split('?')[0];
-      if(sd[key]!==undefined) return sd[key];
-    }
+    if(sd){const key=path.split('?')[0];if(sd[key]!==undefined) return sd[key]}
   }
   const opts={method,headers:{}};
   if(body){opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(body)}
@@ -2438,7 +2435,7 @@ function buildCreateEditPage(eventId){
         <div style="display:flex;gap:6px;margin-bottom:6px">
           <input id="ex-input" placeholder="如: 周二 8:00-10:00 或 3月15日 14:00-16:00" style="flex:1;padding:6px 8px;border:1.5px solid #E2E8F0;border-radius:6px;font-size:.82rem">
           <button class="btn btn-sm" style="background:#DC2626;color:#fff;width:auto;padding:5px 10px;font-size:.78rem" onclick="addManualRule()">添加</button>
-          <button class="btn btn-sm" id="ex-ai-btn" style="background:#7C3AED;color:#fff;width:auto;padding:5px 10px;font-size:.78rem" onclick="aiParseExclusion(document.getElementById('ex-input').value.trim())">AI 解析</button>
+          <button class="btn btn-sm" id="ex-ai-btn" style="background:#7C3AED;color:#fff;width:auto;padding:5px 10px;font-size:.78rem" onclick="if(!localStorage.getItem('openrouter_key')){promptAIKey()}else{aiParseExclusion(document.getElementById('ex-input').value.trim())}">AI 解析</button>
         </div>
         ${S.excludeRules.length>0?`<div style="display:flex;flex-direction:column;gap:4px">${S.excludeRules.map((r,i)=>
           `<div style="display:flex;align-items:center;gap:6px;font-size:.78rem">
@@ -2726,6 +2723,11 @@ function localParseExclusion(txt){
   return null; // can't parse locally
 }
 
+function promptAIKey(){
+  const key=prompt('请输入 OpenRouter API Key（sk-or-...）\n将保存在浏览器本地，不会上传服务器');
+  if(key&&key.startsWith('sk-')){localStorage.setItem('openrouter_key',key);toast('API Key 已保存')}
+  else if(key){toast('无效的 API Key 格式')}
+}
 async function aiParseExclusion(txt){
   const picked=Array.from(S.pickedDates).sort();
   const times_=timeRows(S.granularity, S.timeStart, S.timeEnd);
@@ -2749,7 +2751,7 @@ async function aiParseExclusion(txt){
       method:'POST',
       headers:{
         'Content-Type':'application/json',
-        'Authorization':'Bearer '+(window.OPENROUTER_KEY||'')
+        'Authorization':'Bearer '+(localStorage.getItem('openrouter_key')||'')
       },
       body:JSON.stringify({
         model:'google/gemini-2.5-flash',
